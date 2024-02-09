@@ -1,0 +1,33 @@
+10
+Paris
+Lyon
+Metz
+Nancy
+Reims
+Grenoble
+Valence
+Chambery
+Dijon
+Besançon
+21
+Paris Nancy 309
+Paris Reims 144
+Paris Dijon 315
+Paris Lyon 466
+Paris Chambery 565
+Reims Nancy 205
+Reims Metz 191
+Reims Dijon 291
+Nancy Metz 55
+Lyon Grenoble 106
+Lyon Chambery 101
+Lyon Valence 104
+Grenoble Chambery 57
+Grenoble Valence 92
+Chambery Valence 128
+Dijon Nancy 217
+Dijon Lyon 196
+Dijon Besançon 97
+Besançon Nancy 198
+Besançon Chambery 262
+Besançon Lyon 227

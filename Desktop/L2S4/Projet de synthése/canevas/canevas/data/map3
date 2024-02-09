@@ -1,0 +1,64 @@
+25
+Paris
+Lille
+Reims
+Metz
+Nancy
+Strasbourg
+Dijon
+Lyon
+Marseille
+Toulouse
+Bordeaux
+Rennes
+Montpellier
+Nantes
+Nice
+Toulon
+Grenoble
+Angers
+Villeurbanne
+Brest
+Limoges
+Rouen
+Caen
+Mulhouse
+Avignon
+37
+Paris Nancy 309
+Paris Reims 144 
+Paris Dijon 315
+Paris Lyon 466
+Paris Lille 225
+Paris Rennes 350
+Paris Nantes 386
+Paris Bordeaux 592
+Reims Nancy 309
+Reims Metz 191
+Nancy Metz 55 
+Nancy Dijon 214
+Dijon Lyon 196
+Metz Strasbourg 166
+Strasbourg Mulhouse 114
+Mulhouse Dijon 160
+Lyon Villeurbanne 10
+Lyon Grenoble 111
+Lyon Avignon 229
+Avignon Nice 260
+Avignon Marseille 103
+Marseille Toulon 66
+Toulon Nice 10
+Marseille Montpellier 170
+Montpellier Toulouse 245
+Toulouse Limoges 290
+Toulouse Bordeaux 245
+Bordeaux Limoges 221
+Bordeaux Nantes 347
+Limoges Paris 400
+Limoges Lyon 400
+Rennes Brest 244
+Rennes Caen 160
+Rennes Angers 160
+Rennes Nantes 113
+Caen Rouen 131
+Rouen Lille 256
