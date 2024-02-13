@@ -19,37 +19,40 @@
  * @return le nouveau nœud créé
  */
 static struct tree_node_t * new_tree_node(void * data) {
-	// TODO
+	struct tree_node_t *A=calloc(1,sizeof(struct tree_node_t));
+	assert(A);
+	A->data=data;
+	return A;
 }
 
 void * get_tree_node_data(const struct tree_node_t * node) {
 	assert(node);
-	// TODO
+	return node->data;
 }
 
 struct tree_node_t * get_left(const struct tree_node_t * node) {
 	assert(node);
-	// TODO
+	return node->left;
 }
 
 struct tree_node_t * get_right(const struct tree_node_t * node) {
 	assert(node);
-	// TODO
+	return node->right;
 }
 
 void set_tree_node_data(struct tree_node_t * node, void * newData) {
 	assert(node);
-	// TODO
+	node->data=newData;
 }
 
 void set_left(struct tree_node_t * node, struct tree_node_t * newLeft) {
 	assert(node);
-	// TODO
+	node->left=newLeft;
 }
 
 void set_right(struct tree_node_t * node, struct tree_node_t * newRight) {
 	assert(node);
-	// TODO
+	node->right=newRight
 }
 
 /********************************************************************
