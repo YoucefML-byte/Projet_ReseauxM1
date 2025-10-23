@@ -1,26 +1,33 @@
 package coordonnées;
 
 public class Coordonnées {
-    private String X;
 
-    public Coordonnées(String X) {
-        if(X.length()!=2){
-            throw new IllegalArgumentException("La coordonnées n'est pas valide");
-        }
-        char c1 =X.charAt(0);
-        char c2 =X.charAt(1);
-        if(!(c1>='A' && c1<='K')){
-            throw new IllegalArgumentException("Le premier caractére n'est pas valide");
-        }
-        if(!(c2>='0' && c1<='9')){
-            throw new IllegalArgumentException("Le deuxième caractére n'est pas valide");
-        }
+    private int x;
+    private int Y;
 
-        this.X = X;
+    public Coordonnées(int x, int y) {
+        if(x<0 || y<0){
+            throw new IllegalArgumentException("Les coordonnées doivent être positif");
+        }
+        this.x = x;
+        this.Y = y;
+    }
+    public int getX() {
+        return x;
     }
 
-    public String getX() {
-        return X;
+    public int getY() {
+        return Y;
     }
 
+    public void setX(int x) {
+        this.x = x;
+    }
+    public void setY(int y) {
+        this.Y = y;
+    }
+
+    public String toString() {
+        return "(" + x + ", " + Y + ")";
+    }
 }
