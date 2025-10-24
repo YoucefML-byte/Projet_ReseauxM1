@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class Serveur {
+public class ServeurTCP {
     public static void main(String[] args) {
         System.out.println("Serveur waiting for client");
         try{
