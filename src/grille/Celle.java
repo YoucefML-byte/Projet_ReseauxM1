@@ -46,6 +46,7 @@ public class Celle {
     public Bâteau getBâteau() {
         return bâteau;
     }
+
     //une fois on chois le bâteau on peut plus changer
     private void setBâteau(Bâteau bâteau) {
         this.bâteau = bâteau;
