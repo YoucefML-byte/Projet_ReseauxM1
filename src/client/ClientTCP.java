@@ -1,5 +1,9 @@
 package client;
 
+import message.Message;
+import message.ShotRequest;
+import message.ShotResponse;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -18,24 +22,64 @@ public class ClientTCP {
         System.out.println("Connecté au serveur : " + ip + ":" + port);
     }
 
+    public void envoyer(Message msg) {
+        String texte = msg.serialize();  // 🔥 objet → chaîne
+        out.println(texte);
+        System.out.println("📤 Envoyé : " + texte);
+    }
+
+    public Message recevoir() {
+        try {
+            String raw = in.readLine();  // 🔥 texte reçu du réseau
+            if (raw == null) return null;
+            System.out.println("📩 Reçu brut : " + raw);
+            return Message.deserialize(raw);  // 🔥 chaîne → objet
+        } catch (IOException e) {
+            System.err.println("Erreur réception : " + e.getMessage());
+            return null;
+        }
+    }
+
     public void startMessaging() throws IOException {
         BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
-        String msg;
 
         while (true) {
-            System.out.print("Message à envoyer : ");
-            msg = console.readLine();
+            System.out.print("👉 Commande ('shoot x y' ou 'quit') : ");
+            String input = console.readLine();
 
-            out.println(msg);
+            // ici l'utilisateur à taper ctrl +z ou ctrl + d donc il veut arrêter la communication'
+            if (input == null) {
 
-            String response = in.readLine();
-            System.out.println("Réponse serveur : " + response);
-
-            if (msg.trim().equalsIgnoreCase("quit")) {
-                System.out.println("Déconnexion…");
                 break;
             }
 
+            if (input.equalsIgnoreCase("quit")) {
+                out.println("QUIT");
+                System.out.println("👋 Déconnexion...");
+                break;
+            }
+
+            if (input.startsWith("shoot")) {
+                String[] parts = input.split(" ");
+                int x = Integer.parseInt(parts[1]);
+                int y = Integer.parseInt(parts[2]);
+
+                // 🔥 Création d’un message objet
+                ShotRequest req = new ShotRequest(x, y);
+                envoyer(req);
+
+                // 🔥 Réception du message objet de réponse
+                Message msg = recevoir();
+                if (msg instanceof ShotResponse res) {
+                    System.out.println(" Résultat du tir : " + res.getResultat() + " sur " + res.getNomBateau());
+                } else if (msg != null) {
+                    System.out.println(" Message reçu de type " + msg.getRequest().toString());
+                } else {
+                    System.out.println(" Pas de réponse du serveur.");
+                }
+            } else {
+                System.out.println(" Commande inconnue. Utilisez : shoot x y ou quit");
+            }
         }
     }
 
