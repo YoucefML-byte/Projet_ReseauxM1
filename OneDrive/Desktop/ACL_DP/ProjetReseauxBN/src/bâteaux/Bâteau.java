@@ -1,14 +1,17 @@
 package bâteaux;
 
+import coordonnées.Coordonnées;
+
 public class Bâteau {
     private String nom;
-    private String CoordonnéeDépart;
-    private String CoordonnéDeFin;
+    private int CoordonnéeDépart;
+    private int CoordonnéDeFin;
     private int longeurBâteau;
+    private int pointsRestants;
 
 
 
-    public Bâteau(String nom, String CordoonéeDépart, String CoordonnéDeFin, int longeurBâteau){
+    public Bâteau(String nom, int CordoonéeDépart, int CoordonnéDeFin, int longeurBâteau){
         this.nom = nom;
         this.CoordonnéeDépart = CordoonéeDépart;
         this.CoordonnéDeFin = CoordonnéDeFin;
@@ -19,30 +22,48 @@ public class Bâteau {
     public String getNom(){
         return nom;
     }
+
     private void setNom(String nom){
         this.nom = nom;
     }
-    public String getCoordonnéeDépart(){
+
+    public int getCoordonnéeDépart(){
         return CoordonnéeDépart;
     }
 
-    private void setCoordonnéeDépart(String CoordDépart){
+    private void setCoordonnéeDépart(int CoordDépart){
         this.CoordonnéeDépart = CoordDépart;
     }
 
-    public String getCoordonnéDeFin(){
+    public int getCoordonnéDeFin(){
         return CoordonnéDeFin;
     }
 
-    private void setCoordonnéDeFin(String coordonnéDeFin) {
+    private void setCoordonnéDeFin(int coordonnéDeFin) {
         this.CoordonnéDeFin = coordonnéDeFin;
     }
 
-    public int getLongeur(){
+    public int getLongueur(){
         return longeurBâteau;
     }
 
-    private void setLongeur(int longeur){
+    private void setLongueur(int longeur){
         this.longeurBâteau = longeur;
     }
+
+    public int getPointsRestants(){
+        return pointsRestants;
+    }
+    public void setPointsRestants(int pointsRestants){
+        this.pointsRestants = pointsRestants;
+    }
+
+    public void toucher() {
+        pointsRestants--;
+    }
+
+    public boolean estCoule() {
+        return pointsRestants <= 0;
+    }
+
 }
