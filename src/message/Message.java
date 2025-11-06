@@ -30,14 +30,14 @@ public abstract class Message {
     }
 
     /*
-    * Cette focntion encapsule le message sous forme de chaine de caractéres pour que le clientTCP puisse l'envoyer
+     * Cette focntion encapsule le message sous forme de chaine de caractéres pour que le clientTCP puisse l'envoyer
      */
 
     public abstract String serialize();
 
     /*
-    * Cette fonction permet de convertir la chaîne de caractéres brute en un objet message pour pouvoir le manipuer
-    */
+     * Cette fonction permet de convertir la chaîne de caractéres brute en un objet message pour pouvoir le manipuer
+     */
     public static Message deserialize(String raw){
         // extraction du type de message
         String type = raw.split("\\|")[0];

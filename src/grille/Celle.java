@@ -47,9 +47,12 @@ public class Celle {
         return bâteau;
     }
 
-    //une fois on chois le bâteau on peut plus changer
-    private void setBâteau(Bâteau bâteau) {
+
+    public void setBâteau(Bâteau bâteau) {
+
         this.bâteau = bâteau;
+        //si il contennait rien
+        this.state = CelleState.SHIP;
     }
 
     public boolean isEmpty() {
@@ -60,8 +63,27 @@ public class Celle {
         return state.equals(CelleState.SHIP) && bâteau!=null;
     }
 
+    public boolean estLibre() {
+        return state == CelleState.EMPTY;
+    }
+
     @Override
     public String toString() {
         return "Case [coord=" + coord.toString() + ", etat=" + state + "]";
+    }
+
+    public String representationCase(){
+        switch (state) {
+            case EMPTY:
+                return " ";
+            case SHIP:
+                return "B";
+            case HIT:
+                return "X";
+            case MISS:
+                return "O";
+            default:
+                return "";
+        }
     }
 }

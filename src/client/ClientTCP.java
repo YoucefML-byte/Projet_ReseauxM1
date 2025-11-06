@@ -4,7 +4,10 @@ import message.Message;
 import message.ShotRequest;
 import message.ShotResponse;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 public class ClientTCP {
@@ -23,17 +26,17 @@ public class ClientTCP {
     }
 
     public void envoyer(Message msg) {
-        String texte = msg.serialize();  // 🔥 objet → chaîne
+        String texte = msg.serialize();  //  objet → chaîne
         out.println(texte);
         System.out.println("📤 Envoyé : " + texte);
     }
 
     public Message recevoir() {
         try {
-            String raw = in.readLine();  // 🔥 texte reçu du réseau
+            String raw = in.readLine();  //  texte reçu du réseau
             if (raw == null) return null;
-            System.out.println("📩 Reçu brut : " + raw);
-            return Message.deserialize(raw);  // 🔥 chaîne → objet
+            System.out.println("Message reçu du serveur : " + raw);
+            return Message.deserialize(raw);  // chaîne → objet
         } catch (IOException e) {
             System.err.println("Erreur réception : " + e.getMessage());
             return null;
@@ -44,7 +47,7 @@ public class ClientTCP {
         BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
 
         while (true) {
-            System.out.print("👉 Commande ('shoot x y' ou 'quit') : ");
+            System.out.print("Commande ('shoot x y' ou 'quit') : ");
             String input = console.readLine();
 
             // ici l'utilisateur à taper ctrl +z ou ctrl + d donc il veut arrêter la communication'
@@ -55,20 +58,25 @@ public class ClientTCP {
 
             if (input.equalsIgnoreCase("quit")) {
                 out.println("QUIT");
-                System.out.println("👋 Déconnexion...");
+                System.out.println(" Déconnexion...");
                 break;
             }
 
             if (input.startsWith("shoot")) {
                 String[] parts = input.split(" ");
+
+                if(parts.length != 3) {
+                    System.out.println("Il faut exactemment deux coordonnées");
+                    continue;
+                }
                 int x = Integer.parseInt(parts[1]);
                 int y = Integer.parseInt(parts[2]);
 
-                // 🔥 Création d’un message objet
+                // Création d’un message objet
                 ShotRequest req = new ShotRequest(x, y);
                 envoyer(req);
 
-                // 🔥 Réception du message objet de réponse
+                // Réception du message objet de réponse
                 Message msg = recevoir();
                 if (msg instanceof ShotResponse res) {
                     System.out.println(" Résultat du tir : " + res.getResultat() + " sur " + res.getNomBateau());

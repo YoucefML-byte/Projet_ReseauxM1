@@ -1,6 +1,5 @@
 package message;
 
-import com.sun.net.httpserver.Request;
 import etats.MessegeType;
 
 public class ShotRequest extends Message {
@@ -10,11 +9,11 @@ public class ShotRequest extends Message {
     //ce bloc est exécuté qu'une seule et c'est lors de la compilation du fichier donc même si on crée plusieur instance ce bloc la ne sera pas executer
 
     static {
-        register(MessegeType.SHOT_RESPONSE.toString(), ShotRequest::fromString);
+        register(MessegeType.SHOT_REQUEST.name(), ShotRequest::fromString);
     }
 
     public ShotRequest(int x, int y) {
-        super(MessegeType.SHOT_RESQUEST);
+        super(MessegeType.SHOT_REQUEST);
         this.x = x;
         this.y = y;
     }
@@ -42,9 +41,14 @@ public class ShotRequest extends Message {
 
     public static Message fromString(String raw) {
         String[] parts = raw.split("\\|")[1].split(";");
-        int x = Integer.parseInt(parts[0].split(":")[1]);
-        int y = Integer.parseInt(parts[1].split(":")[1]);
-        return new ShotRequest(x, y);
+        if(parts.length > 2){
+            throw new IllegalArgumentException("Il faut exactemment 2 coordonnées");
+        }else{
+
+            int x = Integer.parseInt(parts[0].split(":")[1]);
+            int y = Integer.parseInt(parts[1].split(":")[1]);
+            return new ShotRequest(x, y);
+        }
     }
 
 
