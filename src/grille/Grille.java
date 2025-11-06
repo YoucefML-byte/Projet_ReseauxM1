@@ -2,6 +2,7 @@ package grille;
 
 import bâteaux.Bâteau;
 import etats.CelleState;
+import etats.ResultatTir;
 
 public class Grille {
     private final int taille;
@@ -44,4 +45,34 @@ public class Grille {
             System.out.println();
         }
     }
+
+    public ResultatTir tirerSurMoi(int x, int y) {
+        Celle c = cellules[x][y];
+
+        if (c.getState() == CelleState.SHIP) {
+            c.setState(CelleState.HIT);
+            Bâteau b = c.getBâteau();
+            b.toucher();
+
+            if (b.estCoule()) return ResultatTir.SUNK;
+            return ResultatTir.HIT;
+        }
+        else if (c.getState() == CelleState.SHIP) {
+            c.setState(CelleState.MISS);
+            return ResultatTir.MISS;
+        }
+
+        return ResultatTir.ALREADY_TRIED; // si la case avait déjà été visée
+    }
+
+    public void marquerResultatTir(int x, int y, ResultatTir res) {
+        Celle c = cellules[x][y];
+        switch (res) {
+            case HIT -> c.setState(CelleState.HIT);
+            case MISS   -> c.setState(CelleState.MISS);
+            case SUNK  -> c.setState(CelleState.HIT);
+            default -> {}
+        }
+    }
+
 }
