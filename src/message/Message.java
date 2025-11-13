@@ -2,54 +2,28 @@ package message;
 
 import etats.MessegeType;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
-
 public abstract class Message {
-    MessegeType request;
+    protected MessegeType type;
+    public MessegeType getType() { return type; }
 
-    // registre qui contient pour chaque type de message le constructeur de message qui lui correspond
-    private static final Map<String, Function<String, Message>> REGISTRY = new HashMap<>();
-
-    public Message(MessegeType request) {
-        this.request = request;
-
-    }
-
-    public MessegeType getRequest() {
-        return request;
-    }
-    public void setRequest(MessegeType request) {
-        this.request = request;
-    }
-
-    //Ajout dans le registre
-    protected static void register(String type, Function<String, Message> constructor) {
-        REGISTRY.put(type, constructor);
-    }
-
-    /*
-     * Cette focntion encapsule le message sous forme de chaine de caractéres pour que le clientTCP puisse l'envoyer
-     */
-
+    // Chaque sous-classe sait se sérialiser
     public abstract String serialize();
 
-    /*
-     * Cette fonction permet de convertir la chaîne de caractéres brute en un objet message pour pouvoir le manipuer
-     */
-    public static Message deserialize(String raw){
-        // extraction du type de message
-        String type = raw.split("\\|")[0];
-        Function<String, Message> creator = REGISTRY.get(type);
+    // On détecte juste le type et on délègue
+    public static Message deserialize(String raw) {
+        String s = raw.trim();
 
-        // aucune correspondance
-        if (creator == null)
-            throw new IllegalArgumentException("Type de message inconnu : " + type);
+        if (s.contains("\"type\":\"SHOT_REQUEST\"")) {
+            return ShotRequest.fromJson(s);
 
-        // on apelle la méthode fromeString avec la chaine recu et c'est elle qui vas la traiter
-        return creator.apply(raw);
+        } else if (s.contains("\"type\":\"SHOT_RESPONSE\"")) {
+            return ShotResponse.fromJson(s);
+
+        } else if (s.contains("\"type\":\"PLACE_SHIP\"")) {   // 👈 AJOUT
+            return PlaceShipRequest.fromJson(s);
+
+        } else {
+            throw new IllegalArgumentException("Type de message inconnu : " + s);
+        }
     }
-
-
 }

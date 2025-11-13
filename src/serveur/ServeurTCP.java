@@ -10,9 +10,9 @@ public class ServeurTCP {
 
         try (ServerSocket serverSocket = new ServerSocket(9999)) {
 
-            // 🔁 Boucle infinie : on accepte plusieurs clients
+            // Boucle infinie : on accepte plusieurs clients
             while (true) {
-                // Bloque jusqu'à ce qu'un client se connecte
+                // Bloque jusqu'à ce qu'un client se connect
                 Socket socket = serverSocket.accept();
                 System.out.println("Client connecté : " + socket.getInetAddress());
 

@@ -17,6 +17,7 @@ public class Bâteau {
         this.CoordonnéDeFin = CoordonnéDeFin;
 
         this.longeurBâteau = longeurBâteau;
+        this.pointsRestants = longeurBâteau;
     }
 
     public String getNom(){
@@ -58,9 +59,7 @@ public class Bâteau {
         this.pointsRestants = pointsRestants;
     }
 
-    public void toucher() {
-        pointsRestants--;
-    }
+    public void toucher() { if (pointsRestants > 0) pointsRestants--; }
 
     public boolean estCoule() {
         return pointsRestants <= 0;

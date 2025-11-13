@@ -4,49 +4,56 @@ import etats.MessegeType;
 import etats.ResultatTir;
 
 public class ShotResponse extends Message {
-    private ResultatTir resultat;
-    private String nomBâteau;
+    private final ResultatTir resultat;   // ton enum
+    private final String nomBateau;       // peut être null
 
-    //ce bloc est exécuté qu'une seule et c'est lors de la compilation du fichier donc même si on crée plusieur instance ce bloc la ne sera pas executer
-
-    static {
-        //ici on fait ShotRequest::fromString pour faire réference à la fonction fromString de ShotRequest alors que si on faissait
-        // ShotRequest.fromString ca aurait exécuter la méthode alors que nous on veut juste une référence de cette méthodr comme ca on sait qui appeler
-        register(MessegeType.SHOT_RESPONSE.toString(), ShotRequest::fromString);
-    }
-
-    public ShotResponse(ResultatTir resultat, String nomBâteau) {
-        super(MessegeType.SHOT_RESPONSE);
+    public ShotResponse(ResultatTir resultat, String nomBateau) {
+        this.type = MessegeType.SHOT_RESPONSE;
         this.resultat = resultat;
-        this.nomBâteau = nomBâteau;
+        this.nomBateau = nomBateau;
     }
 
-    public ResultatTir getResultat() {
-        return resultat;
+    // version utilisée dans Message.deserialize(String res, String nom)
+    public ShotResponse(String resultat, String nomBateau) {
+        this(ResultatTir.valueOf(resultat), nomBateau);
     }
-    private void setResultat(ResultatTir resultat) {
-        this.resultat = resultat;
-    }
-    public String getNomBateau() {
-        return nomBâteau;
-    }
-    private void setNomBateau(String nomBateau) {
-        this.nomBâteau = nomBateau;
-    }
+
+    public ResultatTir getResultat() { return resultat; }
+    public String getNomBateau() { return nomBateau; }
 
     @Override
     public String serialize() {
-        return "SHOT_RESPONSE|resultat:" + resultat + ";nomBateau:" + nomBâteau;
+        String nb = (nomBateau == null) ? "null" : ("\"" + nomBateau + "\"");
+        return "{\"type\":\"SHOT_RESPONSE\",\"resultat\":\"" + resultat.name()
+                + "\",\"nomBateau\":" + nb + "}";
     }
 
+    public static ShotResponse fromJson(String json) {
+        String cleaned = json.replace("{", "")
+                .replace("}", "")
+                .replace("\"", "");
 
-    public static Message fromString(String raw) {
-        String data = raw.split("\\|")[1];
-        String[] parts = data.split(";");
+        // type:SHOT_RESPONSE,resultat:HIT,nomBateau:Croiseur
+        String[] fields = cleaned.split(",");
+        String resStr = null;
+        String nom = null;
 
-        ResultatTir res = ResultatTir.valueOf(parts[0].split(":")[1]);
-        String name = parts[1].split(":")[1];
+        for (String f : fields) {
+            String[] kv = f.split(":", 2);
+            if (kv.length != 2) continue;
+            String key = kv[0].trim();
+            String value = kv[1].trim();
+            if (key.equals("resultat")) {
+                resStr = value;
+            } else if (key.equals("nomBateau")) {
+                if (value.equals("null") || value.isEmpty()) nom = null;
+                else nom = value;
+            }
+        }
 
-        return new ShotResponse(res, name);
+        if (resStr == null) {
+            throw new IllegalArgumentException("resultat manquant dans ShotResponse JSON");
+        }
+        return new ShotResponse(ResultatTir.valueOf(resStr), nom);
     }
 }

@@ -2,5 +2,6 @@ package etats;
 
 public enum MessegeType {
     SHOT_REQUEST,
-    SHOT_RESPONSE
+    SHOT_RESPONSE,
+    PLACE_SHIP
 }
