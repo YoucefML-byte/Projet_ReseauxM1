@@ -69,6 +69,10 @@ public class Joueur {
      * Savoir si le joueur a perdu (tous ses bateaux sont coulés).
      */
     public boolean aPerdu() {
+        if (bateaux.isEmpty()) {
+            // Aucun bateau enregistré → on considère qu'il n'a pas encore perdu
+            return false;
+        }
         for (Bâteau b : bateaux) {
             if (!b.estCoule()) {
                 return false;

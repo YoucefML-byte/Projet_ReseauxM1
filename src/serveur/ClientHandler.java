@@ -53,9 +53,15 @@ public class ClientHandler implements Runnable {
                     }
 
                     if (msg instanceof ShotRequest req) {
-                        ShotResponse res = game.processShot(req);
-                        out.println(res.serialize());
-                    } else {
+                        GameService.RoundResult round = game.processShot(req);
+
+                        // 1️⃣ Résultat du tir du client
+                        out.println(round.getClientResponse().serialize());
+
+                        // 2️⃣ Tir du serveur sur le client
+                        out.println(round.getServerShot().serialize());
+                    }
+                    else {
                         out.println(errorJson("UNSUPPORTED_TYPE", "message non pris en charge"));
                     }
                 }

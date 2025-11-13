@@ -105,38 +105,63 @@ public class Grille {
         // 'X' = touché
         // 'o' = manqué
         // '.' = inconnu/vide
-        for (int y = 0; y < hauteur; y++) {
+
+        // --- En-tête : numéros de colonnes (1..largeur) ---
+        System.out.print("     "); // marge gauche
+        for (int col = 1; col <= largeur; col++) {
+            System.out.print(col + " ");
+        }
+        System.out.println();
+
+        System.out.print("    ");
+        for (int col = 1; col <= largeur; col++) {
+            System.out.print("--");
+        }
+        System.out.println();
+
+        // --- Lignes ---
+        for (int yIdx = 0; yIdx < hauteur; yIdx++) {
+            int rowLabel = yIdx + 1;  // ce qu'on affiche (1..hauteur)
+
+            // numéro de ligne aligné
+            if (rowLabel < 10) {
+                System.out.print(" " + rowLabel + " | ");
+            } else {
+                System.out.print(rowLabel + " | ");
+            }
+
             StringBuilder sb = new StringBuilder();
-            for (int x = 0; x < largeur; x++) {
+
+            for (int xIdx = 0; xIdx < largeur; xIdx++) {
                 char c = '.';
 
-                if (cases[x][y] != null) {
+                if (cases[xIdx][yIdx] != null) {
                     // Il y a un bateau ici
-                    if (dejaTire[x][y]) {
+                    if (dejaTire[xIdx][yIdx]) {
                         c = 'X'; // touché/coulé
                     } else {
                         c = 'B'; // bateau non touché (visible sur grillePerso)
                     }
                 } else {
                     // Pas de bateau ici
-                    if (dejaTire[x][y]) {
+                    if (dejaTire[xIdx][yIdx]) {
                         c = 'o'; // tiré et raté
-                    } else if (tirMemo[x][y] != null) {
+                    } else if (tirMemo[xIdx][yIdx] != null) {
                         // Sur la grille des tirs (adversaire), on affiche ce qu'on sait
-                        ResultatTir r = tirMemo[x][y];
+                        ResultatTir r = tirMemo[xIdx][yIdx];
                         if (r == ResultatTir.MISS) c = 'o';
                         else if (r == ResultatTir.HIT || r == ResultatTir.SUNK) c = 'X';
-                        else c = '.';
-                    } else {
-                        c = '.';
                     }
                 }
 
                 sb.append(c).append(' ');
             }
+
             System.out.println(sb.toString());
         }
     }
+
+
 
     /** Petit record/POJO pour renvoyer (résultat, bateau). */
     public static class TirResult {

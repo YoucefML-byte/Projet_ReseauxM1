@@ -3,6 +3,7 @@ package client;
 import etats.ResultatTir;
 import joueur.Joueur;
 import message.Message;
+import message.ServerShotMessage;
 import message.ShotRequest;
 import message.ShotResponse;
 
@@ -72,16 +73,23 @@ public class ClientTCP {
         BufferedReader console = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
 
         while (true) {
-            System.out.println("\n=== État actuel du joueur " + joueur.getNom() + " ===");
-            System.out.println("Grille de TIRS (ce que tu sais de l'ennemi) :");
-            joueur.getGrilleTirs().afficher();
-            System.out.print("Commande ('shoot x y' ou 'quit') : ");
+            System.out.println();
+            System.out.println("Commandes :");
+            System.out.println("  shoot x y  -> tirer sur l'ennemi");
+            System.out.println("  show       -> afficher les grilles");
+            System.out.println("  quit       -> quitter");
+            System.out.print("> ");
             String input = console.readLine();
 
             // ctrl+D / ctrl+Z → quitter proprement
             if (input == null) break;
 
             input = input.trim();
+
+            if (input.equalsIgnoreCase("show")) {
+                afficherVueJoueur();
+                continue;
+            }
             if (input.equalsIgnoreCase("quit")) {
                 out.println("QUIT");
                 // Lire une éventuelle réponse (“bye bye” JSON/texte), sans bloquer l’utilisateur
@@ -115,17 +123,36 @@ public class ClientTCP {
                 envoyer(req);
 
                 // Lecture de la réponse
+                // 1) Réponse sur TON tir
                 Message msg = recevoir();
                 if (msg instanceof ShotResponse res) {
-                    System.out.println(" Résultat du tir : " + res.getResultat()
-                            + (res.getNomBateau() != null ? (" sur " + res.getNomBateau()) : ""));
-                    ResultatTir resultat = res.getResultat();
-                    joueur.enregistrerResultatTir(x, y, resultat);
-                } else if (msg != null) {
-                    // Afficher au moins le type si ce n'est pas une ShotResponse
-                    System.out.println("ℹ Message reçu de type " + msg.getType());
+                    System.out.println("Ton tir en (" + x + "," + y + ") : "
+                            + res.getResultat()
+                            + (res.getNomBateau() != null ? " sur " + res.getNomBateau() : ""));
+
+                    // Mise à jour de la grille de tirs (ennemi)
+                    joueur.enregistrerResultatTir(x, y, res.getResultat());
                 } else {
-                    System.out.println(" Pas de réponse (ou réponse non standard).");
+                    System.out.println("Réponse inattendue après tir (1) : " + (msg != null ? msg.getType() : "null"));
+                }
+
+                // 2) Message sur le tir de l'ENNEMI
+                Message msg2 = recevoir();
+                if (msg2 instanceof ServerShotMessage sshot) {
+                    int ex = sshot.getX();
+                    int ey = sshot.getY();
+
+                    System.out.println(">> L'ennemi a tiré en (" + ex + "," + ey + ") : "
+                            + sshot.getResultat()
+                            + (sshot.getNomBateau() != null ? " sur " + sshot.getNomBateau() : ""));
+
+                    // On applique ce tir sur NOTRE grille perso locale, pour l'affichage
+                    joueur.recevoirTir(ex, ey); // appelle grillePerso.tirerSurMoi()
+
+                } else if (msg2 != null) {
+                    System.out.println("Réponse inattendue après tir (2) : " + msg2.getType());
+                } else {
+                    System.out.println("Pas d'info sur le tir de l'ennemi.");
                 }
 
             } else {
@@ -201,6 +228,19 @@ public class ClientTCP {
             }
         }
     }
+
+    private void afficherVueJoueur() {
+        System.out.println("\n=== VUE DU JOUEUR " + joueur.getNom() + " ===");
+
+        System.out.println("Votre grille (vos bateaux) :");
+        joueur.getGrillePerso().afficher();
+
+        System.out.println("\nGrille de tirs (où vous avez tiré sur l'ennemi) :");
+        joueur.getGrilleTirs().afficher();
+
+        System.out.println();
+    }
+
 
 
     public void close() {

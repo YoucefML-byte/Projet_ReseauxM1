@@ -15,15 +15,15 @@ public abstract class Message {
 
         if (s.contains("\"type\":\"SHOT_REQUEST\"")) {
             return ShotRequest.fromJson(s);
-
         } else if (s.contains("\"type\":\"SHOT_RESPONSE\"")) {
             return ShotResponse.fromJson(s);
-
-        } else if (s.contains("\"type\":\"PLACE_SHIP\"")) {   // 👈 AJOUT
+        } else if (s.contains("\"type\":\"PLACE_SHIP\"")) {
             return PlaceShipRequest.fromJson(s);
-
+        } else if (s.contains("\"type\":\"SERVER_SHOT\"")) {
+            return ServerShotMessage.fromJson(s);
         } else {
             throw new IllegalArgumentException("Type de message inconnu : " + s);
         }
     }
+
 }
