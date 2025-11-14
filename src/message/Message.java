@@ -21,9 +21,12 @@ public abstract class Message {
             return PlaceShipRequest.fromJson(s);
         } else if (s.contains("\"type\":\"SERVER_SHOT\"")) {
             return ServerShotMessage.fromJson(s);
+        } else if (s.contains("\"type\":\"NEW_GAME\"")) {        // 🔥 OBLIGATOIRE
+            return NewGameRequest.fromJson(s);
         } else {
             throw new IllegalArgumentException("Type de message inconnu : " + s);
         }
     }
+
 
 }

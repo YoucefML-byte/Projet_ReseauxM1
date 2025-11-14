@@ -4,5 +4,6 @@ public enum MessegeType {
     SHOT_REQUEST,
     SHOT_RESPONSE,
     PLACE_SHIP,
-    SERVER_SHOT
+    SERVER_SHOT,
+    NEW_GAME
 }

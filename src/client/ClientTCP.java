@@ -2,10 +2,7 @@ package client;
 
 import etats.ResultatTir;
 import joueur.Joueur;
-import message.Message;
-import message.ServerShotMessage;
-import message.ShotRequest;
-import message.ShotResponse;
+import message.*;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -44,7 +41,7 @@ public class ClientTCP {
     public void envoyer(Message msg) {
         String texte = msg.serialize();  // objet → JSON
         out.println(texte);
-        System.out.println(" Envoyé : " + texte);
+        //System.out.println(" Envoyé : " + texte);
     }
 
     public Message recevoir() {
@@ -54,7 +51,7 @@ public class ClientTCP {
                 System.out.println(" Connexion fermée par le serveur.");
                 return null;
             }
-            System.out.println(" Reçu : " + raw);
+            //System.out.println(" Reçu : " + raw);
 
             try {
                 return Message.deserialize(raw);  // JSON → objet
@@ -142,12 +139,56 @@ public class ClientTCP {
                     int ex = sshot.getX();
                     int ey = sshot.getY();
 
-                    System.out.println(">> L'ennemi a tiré en (" + ex + "," + ey + ") : "
-                            + sshot.getResultat()
-                            + (sshot.getNomBateau() != null ? " sur " + sshot.getNomBateau() : ""));
+                    if (ex >= 0 && ey >= 0) {
+                        System.out.println(">> L'ennemi a tiré en (" + ex + "," + ey + ") : "
+                                + sshot.getResultat()
+                                + (sshot.getNomBateau() != null ? " sur " + sshot.getNomBateau() : ""));
+                        joueur.recevoirTir(ex, ey);
+                    }
 
-                    // On applique ce tir sur NOTRE grille perso locale, pour l'affichage
-                    joueur.recevoirTir(ex, ey); // appelle grillePerso.tirerSurMoi()
+                    if (sshot.isGameOver()) {
+                        // ici tu as déjà affiché gagné/perdu avant ce if normalement
+
+                        while (true) {  // petite boucle tant que la réponse n'est pas valide
+                            System.out.print("Voulez-vous rejouer ? (o/n) : ");
+                            String rep = console.readLine();
+                            if (rep == null) {
+                                // entrée terminée -> on quitte proprement
+                                out.println("QUIT");
+                                return; // on sort de startMessaging()
+                            }
+
+                            rep = rep.trim().toLowerCase();
+
+                            if (rep.equals("o")) {
+                                // 👉 1) demander une nouvelle partie au serveur
+                                NewGameRequest ng = new NewGameRequest();
+                                envoyer(ng);
+
+                                // 👉 2) attendre l'ACK du serveur
+                                Message ack = recevoir();
+                                System.out.println("Serveur : nouvelle partie prête.");
+
+                                // 👉 3) recréer un joueur propre côté client
+                                this.joueur = new Joueur("Client", 10);
+
+                                // 👉 4) refaire la phase de placement (qui renvoie des PLACE_SHIP)
+                                phasePlacement();
+
+                                // 👉 5) on sort de cette petite boucle "o/n"
+                                break; // on revient dans la grande boucle de jeu
+                            } else if (rep.equals("n")) {
+                                out.println("QUIT");
+                                return; // on sort de startMessaging(), donc fin du client
+                            } else {
+                                System.out.println("Réponse invalide. Tape 'o' pour rejouer ou 'n' pour quitter.");
+                            }
+                        }
+
+                        // ici, si on est sorti du while(true) par un 'break' (rejouer),
+                        // on laisse la grande boucle continuer (pas de break, pas de return)
+                        continue;
+                    }
 
                 } else if (msg2 != null) {
                     System.out.println("Réponse inattendue après tir (2) : " + msg2.getType());
@@ -160,6 +201,34 @@ public class ClientTCP {
             }
         }
     }
+
+    private boolean gererFinDePartieEtRejouer(BufferedReader console) throws IOException {
+        System.out.print("Voulez-vous rejouer ? (o/n) : ");
+        String rep = console.readLine();
+        if (rep != null && rep.equalsIgnoreCase("o")) {
+            // 1) dire au serveur qu'on veut une nouvelle partie
+            NewGameRequest ng = new NewGameRequest();
+            envoyer(ng);
+
+            // 2) lire NEW_GAME_RESPONSE
+            Message ack = recevoir();
+            System.out.println("Serveur : nouvelle partie prête.");
+
+            // 3) reset joueur local
+            this.joueur = new Joueur("Client", 10);
+
+            // 4) refaire placement (qui envoie PLACE_SHIP)
+            phasePlacement();
+
+            // 5) on reste dans startMessaging()
+            return true;
+        } else {
+            out.println("QUIT");
+            return false;
+        }
+    }
+
+
 
     private void phasePlacement() throws IOException {
         BufferedReader console = new BufferedReader(new InputStreamReader(System.in));

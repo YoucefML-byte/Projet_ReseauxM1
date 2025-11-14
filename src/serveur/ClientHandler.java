@@ -1,8 +1,6 @@
 package serveur;
 
-import message.Message;
-import message.ShotRequest;
-import message.ShotResponse;
+import message.*;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -54,14 +52,18 @@ public class ClientHandler implements Runnable {
 
                     if (msg instanceof ShotRequest req) {
                         GameService.RoundResult round = game.processShot(req);
-
-                        // 1️⃣ Résultat du tir du client
                         out.println(round.getClientResponse().serialize());
-
-                        // 2️⃣ Tir du serveur sur le client
                         out.println(round.getServerShot().serialize());
-                    }
-                    else {
+
+                    } else if (msg instanceof PlaceShipRequest ps) {
+                        boolean ok = game.placeClientShip(ps);
+                        out.println("{\"type\":\"PLACE_SHIP_RESPONSE\",\"ok\":" + ok + "}");
+
+                    } else if (msg instanceof NewGameRequest) {
+                        System.out.println("📨 NEW_GAME reçu du client, on reset la partie.");
+                        game.resetGame();
+                        out.println("{\"type\":\"NEW_GAME_RESPONSE\",\"ok\":true}");
+                    }else {
                         out.println(errorJson("UNSUPPORTED_TYPE", "message non pris en charge"));
                     }
                 }

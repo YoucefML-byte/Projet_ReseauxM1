@@ -10,39 +10,54 @@ public class ServerShotMessage extends Message {
     private final ResultatTir resultat;
     private final String nomBateau; // peut être null
 
-    public ServerShotMessage(int x, int y, ResultatTir resultat, String nomBateau) {
+    // 👇 nouveaux champs
+    private final boolean gameOver;
+    private final String winner; // "CLIENT", "SERVER" ou null
+
+    public ServerShotMessage(int x, int y, ResultatTir resultat, String nomBateau,
+                             boolean gameOver, String winner) {
         this.type = MessegeType.SERVER_SHOT;
         this.x = x;
         this.y = y;
         this.resultat = resultat;
         this.nomBateau = nomBateau;
+        this.gameOver = gameOver;
+        this.winner = winner;
     }
 
     public int getX() { return x; }
     public int getY() { return y; }
     public ResultatTir getResultat() { return resultat; }
     public String getNomBateau() { return nomBateau; }
+    public boolean isGameOver() { return gameOver; }
+    public String getWinner() { return winner; }
 
     @Override
     public String serialize() {
         String nb = (nomBateau == null) ? "null" : ("\"" + nomBateau + "\"");
+        String win = (winner == null) ? "null" : ("\"" + winner + "\"");
+
         return "{\"type\":\"SERVER_SHOT\",\"x\":" + x +
                 ",\"y\":" + y +
                 ",\"resultat\":\"" + resultat.name() + "\"," +
-                "\"nomBateau\":" + nb + "}";
+                "\"nomBateau\":" + nb + "," +
+                "\"gameOver\":" + gameOver + "," +
+                "\"winner\":" + win +
+                "}";
     }
 
-    // Même style que ShotRequest.fromJson : on nettoie et on split
     public static ServerShotMessage fromJson(String json) {
         String cleaned = json.replace("{", "")
                 .replace("}", "")
                 .replace("\"", "");
 
-        // type:SERVER_SHOT,x:3,y:5,resultat:HIT,nomBateau:Croiseur
+        // type:SERVER_SHOT,x:3,y:5,resultat:HIT,nomBateau:Croiseur,gameOver:true,winner:CLIENT
         String[] fields = cleaned.split(",");
         int x = 0, y = 0;
         ResultatTir res = ResultatTir.MISS;
         String nom = null;
+        boolean gameOver = false;
+        String winner = null;
 
         for (String f : fields) {
             String[] kv = f.split(":", 2);
@@ -55,14 +70,16 @@ public class ServerShotMessage extends Message {
                 case "y" -> y = Integer.parseInt(value);
                 case "resultat" -> res = ResultatTir.valueOf(value);
                 case "nomBateau" -> {
-                    if (!value.equals("null") && !value.isEmpty()) {
-                        nom = value;
-                    }
+                    if (!value.equals("null") && !value.isEmpty()) nom = value;
+                }
+                case "gameOver" -> gameOver = Boolean.parseBoolean(value);
+                case "winner" -> {
+                    if (!value.equals("null") && !value.isEmpty()) winner = value;
                 }
                 default -> {}
             }
         }
 
-        return new ServerShotMessage(x, y, res, nom);
+        return new ServerShotMessage(x, y, res, nom, gameOver, winner);
     }
 }

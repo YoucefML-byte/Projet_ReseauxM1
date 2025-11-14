@@ -19,24 +19,39 @@ public class GameService {
     private static final GameService INSTANCE = new GameService();
     public static GameService getInstance() { return INSTANCE; }
 
-    private final Joueur joueurClient;   // bateaux du client (connus du serveur, via PLACE_SHIP)
-    private final Joueur joueurServeur;  // bateaux du serveur
-    private final Random random = new Random();
-    private final int taille = 10;
+    private Joueur joueurClient;
+    private Joueur joueurServeur;
 
+    private final int taille = 10;
+    private final java.util.Random random = new java.util.Random();
+
+    // état global de la partie courante
+    private boolean gameOver;
+    private String winner; // "CLIENT", "SERVER", "DRAW" ou null
 
     private GameService() {
+        resetGame();
+    }
+
+    public synchronized void resetGame() {
+        System.out.println("🔁 Réinitialisation de la partie...");
+        gameOver = false;
+        winner = null;
+        System.out.println("    -> gameOver=" + gameOver + ", winner=" + winner);
+
         joueurClient = new Joueur("Client", taille);
         joueurServeur = new Joueur("Serveur", taille);
 
+        // 3) placement aléatoire des bateaux du SERVEUR
         placerAleatoire(joueurServeur, new PorteAvion(0, 4));
         placerAleatoire(joueurServeur, new Croiseur(0, 3));
         placerAleatoire(joueurServeur, new ContreTorpilleur(0, 2));
         placerAleatoire(joueurServeur, new Torpilleur(0, 1));
 
-        System.out.println("⚓ Grille du SERVEUR (ses bateaux) :");
+        System.out.println("⚓ Nouvelle grille du SERVEUR :");
         joueurServeur.getGrillePerso().afficher();
     }
+
 
     // ✅ appelé quand le serveur reçoit un PLACE_SHIP du client
     public synchronized boolean placeClientShip(PlaceShipRequest req) {
@@ -67,48 +82,84 @@ public class GameService {
      * Ensuite le SERVEUR tire sur le CLIENT.
      */
     public synchronized RoundResult processShot(ShotRequest req) {
+
+        // Si quelqu'un envoie encore un tir alors que la partie est finie
+        if (gameOver) {
+            System.out.println("⚠ Tir ignoré : la partie est déjà terminée, winner=" + winner);
+            // on renvoie juste un message neutre pour que le client le voie éventuellement
+            ShotResponse neutral = new ShotResponse(ResultatTir.MISS, null);
+            ServerShotMessage sshot = new ServerShotMessage(
+                    -1, -1, ResultatTir.MISS, null,
+                    true, winner
+            );
+            return new RoundResult(neutral, sshot);
+        }
+
         int x = req.getX();
         int y = req.getY();
 
         System.out.println("🎯 Tir du CLIENT en (" + x + "," + y + ") sur la grille du SERVEUR");
 
-        // Tir du client sur la grille du serveur
+        // 1) tir du client sur le serveur
         Grille grilleServ = joueurServeur.getGrillePerso();
         TirResult trClient = grilleServ.tirer(x, y);
 
         ResultatTir resultatClient = trClient.getResultat();
         String nomBateauClient = (trClient.getBateau() != null) ? trClient.getBateau().getNom() : null;
 
-        // Mémoriser le tir dans la grille de tirs du client (côté serveur)
         joueurClient.getGrilleTirs().marquerResultatTir(x, y, resultatClient);
 
         System.out.println("   → Résultat du tir du client : " + resultatClient
-                + (nomBateauClient != null ? " sur " + nomBateauClient : ""));
+                + (nomBateauClient != null ? (" sur " + nomBateauClient) : ""));
         System.out.println("🗺️ Grille du SERVEUR après le tir du client :");
         grilleServ.afficher();
 
-        // Tir du serveur sur le client → on récupère un ServerShotMessage
-        ServerShotMessage serverShot = effectuerTirServeurSurClient();
-
-        // Vérifier fin de partie (optionnel)
-        if (joueurServeur.aPerdu()) {
+        // 2) check : le serveur a-t-il perdu ?
+        boolean serverLost = joueurServeur.aPerdu();
+        if (serverLost) {
+            gameOver = true;
+            winner = "CLIENT";
             System.out.println("💥 Tous les bateaux du SERVEUR sont coulés : le CLIENT a gagné !");
+
+            ShotResponse clientRes = new ShotResponse(resultatClient, nomBateauClient);
+            ServerShotMessage sshot = new ServerShotMessage(
+                    -1, -1,
+                    ResultatTir.MISS, null,
+                    true, winner
+            );
+            return new RoundResult(clientRes, sshot);
         }
-        if (joueurClient.aPerdu()) {
+
+        // 3) sinon, le serveur tire sur le client
+        TirServeurInfo ts = effectuerTirServeurSurClient();
+
+        // 4) check : le client a-t-il perdu ?
+        boolean clientLost = joueurClient.aPerdu();
+        boolean ended = clientLost;
+        String ww = null;
+
+        if (clientLost) {
+            gameOver = true;
+            winner = "SERVER";
+            ww = winner;
             System.out.println("💀 Tous les bateaux du CLIENT sont coulés : le SERVEUR a gagné !");
         }
 
-        // Réponse pour le client : son tir + le tir de l’ennemi
+        // 5) construire les messages
         ShotResponse clientRes = new ShotResponse(resultatClient, nomBateauClient);
-        return new RoundResult(clientRes, serverShot);
-    }
+        ServerShotMessage sshot = new ServerShotMessage(
+                ts.x, ts.y, ts.res, ts.nomBateau,
+                ended, ww
+        );
 
+        return new RoundResult(clientRes, sshot);
+    }
 
 
     /**
      * Le serveur tire au hasard sur la grille perso du CLIENT.
      */
-    private ServerShotMessage effectuerTirServeurSurClient() {
+    private TirServeurInfo effectuerTirServeurSurClient() {
         Grille grilleClient = joueurClient.getGrillePerso();
         Grille grilleTirsServeur = joueurServeur.getGrilleTirs();
 
@@ -135,10 +186,12 @@ public class GameService {
             grilleClient.afficher();
             System.out.println("------------------------------------");
 
-            // On retourne le message à envoyer au client
-            return new ServerShotMessage(x, y, res, nomBateau);
+            // 👉 On ne crée PLUS ServerShotMessage ici.
+            // On retourne juste les infos pour que processShot les utilise.
+            return new TirServeurInfo(x, y, res, nomBateau);
         }
     }
+
 
 
     /**
@@ -148,10 +201,8 @@ public class GameService {
     private void placerAleatoire(Joueur joueur, Bâteau bateau) {
         while (true) {
             boolean horizontal = random.nextBoolean();
-
             int longueur = bateau.getLongueur();
 
-            // On calcule les bornes max possibles pour x et y selon l'orientation
             int maxX = horizontal ? (taille - longueur) : (taille - 1);
             int maxY = horizontal ? (taille - 1) : (taille - longueur);
 
@@ -164,10 +215,7 @@ public class GameService {
                         + (horizontal ? "HORIZONTAL" : "VERTICAL"));
                 break;
             }
-            // sinon, on recommence le while avec d'autres coordonnées
         }
-
-
     }
 
     public static class RoundResult {
@@ -183,6 +231,15 @@ public class GameService {
         public ServerShotMessage getServerShot() { return serverShot; }
     }
 
+    private static class TirServeurInfo {
+        final int x;
+        final int y;
+        final ResultatTir res;
+        final String nomBateau;
+        TirServeurInfo(int x, int y, ResultatTir res, String nomBateau) {
+            this.x = x; this.y = y; this.res = res; this.nomBateau = nomBateau;
+        }
+    }
 
 
 }
