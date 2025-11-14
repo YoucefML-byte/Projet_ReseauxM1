@@ -15,10 +15,10 @@ public class ClientTCP {
     private BufferedReader in;
     private PrintWriter out;
 
-    private Joueur joueur; //  le joueur associé à ce client
+    private Joueur joueur;
 
     public ClientTCP() {
-        this("Client", 10); // nom par défaut, grille 10x10
+        this("Client", 10);
     }
 
     public ClientTCP(String nomJoueur, int tailleGrille) {
@@ -27,10 +27,7 @@ public class ClientTCP {
 
     public void connecter(String ip, int port) throws IOException {
         socket = new Socket();
-        // Timeout de connexion (3s) pour éviter de “pendre”
         socket.connect(new InetSocketAddress(ip, port), 3000);
-
-
 
         in  = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
         out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
@@ -39,25 +36,22 @@ public class ClientTCP {
     }
 
     public void envoyer(Message msg) {
-        String texte = msg.serialize();  // objet → JSON
+        String texte = msg.serialize();
         out.println(texte);
-        //System.out.println(" Envoyé : " + texte);
     }
 
     public Message recevoir() {
         try {
-            String raw = in.readLine();  // une ligne JSON
+            String raw = in.readLine();
             if (raw == null) {
-                System.out.println(" Connexion fermée par le serveur.");
+                System.out.println("Connexion fermée par le serveur.");
                 return null;
             }
-            //System.out.println(" Reçu : " + raw);
 
             try {
-                return Message.deserialize(raw);  // JSON → objet
+                return Message.deserialize(raw);
             } catch (RuntimeException parseEx) {
-                // Si ce n'est pas un JSON Message valide (ex: {"type":"ERROR"} non géré, ou "bye bye")
-                System.out.println(" Réponse non standard: " + raw);
+                System.out.println("Réponse non standard: " + raw);
                 return null;
             }
         } catch (IOException e) {
@@ -78,7 +72,6 @@ public class ClientTCP {
             System.out.print("> ");
             String input = console.readLine();
 
-            // ctrl+D / ctrl+Z → quitter proprement
             if (input == null) break;
 
             input = input.trim();
@@ -89,16 +82,15 @@ public class ClientTCP {
             }
             if (input.equalsIgnoreCase("quit")) {
                 out.println("QUIT");
-                // Lire une éventuelle réponse (“bye bye” JSON/texte), sans bloquer l’utilisateur
-                Message maybe = recevoir(); // ok si null
-                System.out.println(" Déconnexion...");
+                Message maybe = recevoir();
+                System.out.println("Déconnexion...");
                 break;
             }
 
             if (input.toLowerCase().startsWith("shoot")) {
                 String[] parts = input.split("\\s+");
                 if (parts.length != 3) {
-                    System.out.println(" Il faut exactement deux coordonnées: shoot x y");
+                    System.out.println("Il faut exactement deux coordonnées: shoot x y");
                     continue;
                 }
 
@@ -107,11 +99,11 @@ public class ClientTCP {
                     x = Integer.parseInt(parts[1]);
                     y = Integer.parseInt(parts[2]);
                 } catch (NumberFormatException nfe) {
-                    System.out.println(" Les coordonnées doivent être des entiers.");
+                    System.out.println("Les coordonnées doivent être des entiers.");
                     continue;
                 }
                 if (x < 0 || y < 0) {
-                    System.out.println(" Coordonnées négatives interdites.");
+                    System.out.println("Coordonnées négatives interdites.");
                     continue;
                 }
 
@@ -119,7 +111,6 @@ public class ClientTCP {
                 ShotRequest req = new ShotRequest(x, y);
                 envoyer(req);
 
-                // Lecture de la réponse
                 // 1) Réponse sur TON tir
                 Message msg = recevoir();
                 if (msg instanceof ShotResponse res) {
@@ -127,7 +118,6 @@ public class ClientTCP {
                             + res.getResultat()
                             + (res.getNomBateau() != null ? " sur " + res.getNomBateau() : ""));
 
-                    // Mise à jour de la grille de tirs (ennemi)
                     joueur.enregistrerResultatTir(x, y, res.getResultat());
                 } else {
                     System.out.println("Réponse inattendue après tir (1) : " + (msg != null ? msg.getType() : "null"));
@@ -146,47 +136,27 @@ public class ClientTCP {
                         joueur.recevoirTir(ex, ey);
                     }
 
+                    // ✅ Vérifier si la partie est terminée
                     if (sshot.isGameOver()) {
-                        // ici tu as déjà affiché gagné/perdu avant ce if normalement
+                        System.out.println("\n════════════════════════════════════");
+                        System.out.println("         FIN DE LA PARTIE");
+                        System.out.println("════════════════════════════════════");
 
-                        while (true) {  // petite boucle tant que la réponse n'est pas valide
-                            System.out.print("Voulez-vous rejouer ? (o/n) : ");
-                            String rep = console.readLine();
-                            if (rep == null) {
-                                // entrée terminée -> on quitte proprement
-                                out.println("QUIT");
-                                return; // on sort de startMessaging()
-                            }
-
-                            rep = rep.trim().toLowerCase();
-
-                            if (rep.equals("o")) {
-                                // 👉 1) demander une nouvelle partie au serveur
-                                NewGameRequest ng = new NewGameRequest();
-                                envoyer(ng);
-
-                                // 👉 2) attendre l'ACK du serveur
-                                Message ack = recevoir();
-                                System.out.println("Serveur : nouvelle partie prête.");
-
-                                // 👉 3) recréer un joueur propre côté client
-                                this.joueur = new Joueur("Client", 10);
-
-                                // 👉 4) refaire la phase de placement (qui renvoie des PLACE_SHIP)
-                                phasePlacement();
-
-                                // 👉 5) on sort de cette petite boucle "o/n"
-                                break; // on revient dans la grande boucle de jeu
-                            } else if (rep.equals("n")) {
-                                out.println("QUIT");
-                                return; // on sort de startMessaging(), donc fin du client
-                            } else {
-                                System.out.println("Réponse invalide. Tape 'o' pour rejouer ou 'n' pour quitter.");
-                            }
+                        if ("CLIENT".equals(sshot.getWinner())) {
+                            System.out.println("🎉 FÉLICITATIONS ! VOUS AVEZ GAGNÉ ! 🎉");
+                        } else if ("SERVER".equals(sshot.getWinner())) {
+                            System.out.println("😞 VOUS AVEZ PERDU... 😞");
+                        } else {
+                            System.out.println("🤝 MATCH NUL 🤝");
                         }
+                        System.out.println("════════════════════════════════════\n");
 
-                        // ici, si on est sorti du while(true) par un 'break' (rejouer),
-                        // on laisse la grande boucle continuer (pas de break, pas de return)
+                        // Proposer de rejouer
+                        if (!proposerRejouer(console)) {
+                            return; // Sortir de startMessaging()
+                        }
+                        // Si on arrive ici, c'est qu'on a choisi de rejouer
+                        // La boucle continue normalement
                         continue;
                     }
 
@@ -197,65 +167,88 @@ public class ClientTCP {
                 }
 
             } else {
-                System.out.println(" Commande inconnue. Utilisez : shoot x y ou quit");
+                System.out.println("Commande inconnue. Utilisez : shoot x y ou quit");
             }
         }
     }
 
-    private boolean gererFinDePartieEtRejouer(BufferedReader console) throws IOException {
-        System.out.print("Voulez-vous rejouer ? (o/n) : ");
-        String rep = console.readLine();
-        if (rep != null && rep.equalsIgnoreCase("o")) {
-            // 1) dire au serveur qu'on veut une nouvelle partie
-            NewGameRequest ng = new NewGameRequest();
-            envoyer(ng);
+    /**
+     * Propose au joueur de rejouer ou de quitter
+     * @return true si le joueur veut rejouer, false s'il veut quitter
+     */
+    private boolean proposerRejouer(BufferedReader console) throws IOException {
+        while (true) {
+            System.out.print("Voulez-vous rejouer ? (o/n) : ");
+            String rep = console.readLine();
 
-            // 2) lire NEW_GAME_RESPONSE
-            Message ack = recevoir();
-            System.out.println("Serveur : nouvelle partie prête.");
+            if (rep == null) {
+                // Entrée terminée -> on quitte proprement
+                out.println("QUIT");
+                return false;
+            }
 
-            // 3) reset joueur local
-            this.joueur = new Joueur("Client", 10);
+            rep = rep.trim().toLowerCase();
 
-            // 4) refaire placement (qui envoie PLACE_SHIP)
-            phasePlacement();
+            if (rep.equals("o") || rep.equals("oui") || rep.equals("y") || rep.equals("yes")) {
+                System.out.println("\n🔄 Préparation d'une nouvelle partie...");
 
-            // 5) on reste dans startMessaging()
-            return true;
-        } else {
-            out.println("QUIT");
-            return false;
+                // 1) Demander une nouvelle partie au serveur
+                NewGameRequest ng = new NewGameRequest();
+                envoyer(ng);
+
+                // 2) Attendre l'ACK du serveur
+                Message ack = recevoir();
+                if (ack != null) {
+                    System.out.println("✓ Serveur : nouvelle partie prête.");
+                }
+
+                // 3) Recréer un joueur propre côté client
+                this.joueur = new Joueur("Client", 10);
+
+                // 4) Refaire la phase de placement
+                phasePlacement();
+
+                System.out.println("\n🎮 La nouvelle partie commence !\n");
+
+                return true; // On veut rejouer
+
+            } else if (rep.equals("n") || rep.equals("non") || rep.equals("no")) {
+                System.out.println("\n👋 Merci d'avoir joué ! À bientôt !");
+                out.println("QUIT");
+                return false; // On veut quitter
+
+            } else {
+                System.out.println("⚠️  Réponse invalide. Veuillez taper 'o' pour rejouer ou 'n' pour quitter.");
+            }
         }
     }
-
-
 
     private void phasePlacement() throws IOException {
         BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
 
-        System.out.println("=== PHASE DE PLACEMENT DES BATEAUX ===");
-        System.out.println("Tu vas placer : PorteAvion (5), Croiseur (4), ContreTorpilleur (3), Torpilleur (2)");
-        System.out.println("Les coordonnées vont de 0 à 9 (pour une grille 10x10).");
+        System.out.println("\n═══════════════════════════════════════════");
+        System.out.println("     PHASE DE PLACEMENT DES BATEAUX");
+        System.out.println("═══════════════════════════════════════════");
+        System.out.println("Tu vas placer : PorteAvion (5), Croiseur (4),");
+        System.out.println("                ContreTorpilleur (3), Torpilleur (2)");
+        System.out.println("Les coordonnées vont de 0 à 9 (grille 10x10).");
+        System.out.println("═══════════════════════════════════════════\n");
 
-        // PorteAvion
+        // Placement des bateaux
         placerUnBateau(console, new bâteaux.PorteAvion(0, 0), "PorteAvion", 5);
-
-        // Croiseur
         placerUnBateau(console, new bâteaux.Croiseur(0, 0), "Croiseur", 4);
-
-        // ContreTorpilleur
         placerUnBateau(console, new bâteaux.ContreTorpilleur(0, 0), "ContreTorpilleur", 3);
-
-        // Torpilleur
         placerUnBateau(console, new bâteaux.Torpilleur(0, 0), "Torpilleur", 2);
 
-        System.out.println("=== Ta grille perso après placement ===");
+        System.out.println("\n✓ Tous les bateaux sont placés !");
+        System.out.println("\n═══ Ta grille personnelle ═══");
         joueur.getGrillePerso().afficher();
+        System.out.println("═══════════════════════════════\n");
     }
 
     private void placerUnBateau(BufferedReader console, bâteaux.Bâteau bateau, String nom, int longueur) throws IOException {
         while (true) {
-            System.out.println("\nPlacement du " + nom + " (longueur " + longueur + ")");
+            System.out.println("\n📍 Placement du " + nom + " (longueur " + longueur + ")");
             System.out.print("Entrer x y orientation(H/V) (ex: 2 3 H) : ");
             String ligne = console.readLine();
             if (ligne == null) {
@@ -264,7 +257,7 @@ public class ClientTCP {
             }
             String[] parts = ligne.trim().split("\\s+");
             if (parts.length != 3) {
-                System.out.println("Format invalide. Exemple correct: 2 3 H");
+                System.out.println("❌ Format invalide. Exemple correct: 2 3 H");
                 continue;
             }
 
@@ -273,7 +266,7 @@ public class ClientTCP {
                 x = Integer.parseInt(parts[0]);
                 y = Integer.parseInt(parts[1]);
             } catch (NumberFormatException e) {
-                System.out.println("x et y doivent être des entiers.");
+                System.out.println("❌ x et y doivent être des entiers.");
                 continue;
             }
 
@@ -283,15 +276,15 @@ public class ClientTCP {
             } else if (parts[2].equalsIgnoreCase("V")) {
                 horizontal = false;
             } else {
-                System.out.println("Orientation invalide. Utilise H ou V.");
+                System.out.println("❌ Orientation invalide. Utilise H ou V.");
                 continue;
             }
 
             boolean ok = joueur.placerBateau(bateau, x, y, horizontal);
             if (!ok) {
-                System.out.println("Impossible de placer ici (débordement ou chevauchement). Essaie ailleurs.");
+                System.out.println("❌ Impossible de placer ici (débordement ou chevauchement). Essaie ailleurs.");
             } else {
-                System.out.println(nom + " placé en (" + x + "," + y + ") " + (horizontal ? "HORIZONTAL" : "VERTICAL"));
+                System.out.println("✓ " + nom + " placé en (" + x + "," + y + ") " + (horizontal ? "HORIZONTAL" : "VERTICAL"));
                 joueur.getGrillePerso().afficher();
                 break;
             }
@@ -299,18 +292,18 @@ public class ClientTCP {
     }
 
     private void afficherVueJoueur() {
-        System.out.println("\n=== VUE DU JOUEUR " + joueur.getNom() + " ===");
+        System.out.println("\n═══════════════════════════════════════");
+        System.out.println("     VUE DU JOUEUR " + joueur.getNom());
+        System.out.println("═══════════════════════════════════════");
 
-        System.out.println("Votre grille (vos bateaux) :");
+        System.out.println("\n📋 Votre grille (vos bateaux) :");
         joueur.getGrillePerso().afficher();
 
-        System.out.println("\nGrille de tirs (où vous avez tiré sur l'ennemi) :");
+        System.out.println("\n🎯 Grille de tirs (où vous avez tiré sur l'ennemi) :");
         joueur.getGrilleTirs().afficher();
 
         System.out.println();
     }
-
-
 
     public void close() {
         try { if (in != null) in.close(); } catch (IOException ignored) {}
@@ -322,18 +315,27 @@ public class ClientTCP {
         ClientTCP client = new ClientTCP("Client", 10);
 
         try (BufferedReader console = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8))) {
-            System.out.print("Entrer l’adresse IP du serveur : ");
+            System.out.println("═══════════════════════════════════════");
+            System.out.println("        JEU DE BATAILLE NAVALE");
+            System.out.println("═══════════════════════════════════════\n");
+
+            System.out.print("Entrer l'adresse IP du serveur : ");
             String ip = console.readLine();
 
             System.out.print("Entrer le port du serveur : ");
             int port = Integer.parseInt(console.readLine());
 
             client.connecter(ip, port);
-            // 🔹 On place d'abord les bateaux du joueur
+
+            // Placement initial des bateaux
             client.phasePlacement();
+
+            // Démarrer la boucle de jeu
             client.startMessaging();
+
         } catch (Exception e) {
             System.err.println("Erreur : " + e.getMessage());
+            e.printStackTrace();
         } finally {
             client.close();
         }
