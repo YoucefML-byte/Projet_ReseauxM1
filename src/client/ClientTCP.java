@@ -1,6 +1,8 @@
 package client;
 
 import etats.ResultatTir;
+import etats.Orientation;
+import etats.ShipType;
 import joueur.Joueur;
 import message.*;
 
@@ -62,14 +64,23 @@ public class ClientTCP {
 
     public void startMessaging() throws IOException {
         BufferedReader console = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
+        boolean monTour = true; // Le client commence
 
         while (true) {
             System.out.println();
-            System.out.println("Commandes :");
-            System.out.println("  shoot x y  -> tirer sur l'ennemi");
-            System.out.println("  show       -> afficher les grilles");
-            System.out.println("  quit       -> quitter");
-            System.out.print("> ");
+
+            if (monTour) {
+                System.out.println("🎯 C'EST VOTRE TOUR !");
+                System.out.println("Commandes :");
+                System.out.println("  shoot x y  -> tirer sur l'ennemi");
+                System.out.println("  show       -> afficher les grilles");
+                System.out.println("  quit       -> quitter");
+                System.out.print("> ");
+            } else {
+                System.out.println("⏳ Tour de l'adversaire... Appuyez sur Entrée pour continuer");
+                console.readLine();
+            }
+
             String input = console.readLine();
 
             if (input == null) break;
@@ -88,6 +99,11 @@ public class ClientTCP {
             }
 
             if (input.toLowerCase().startsWith("shoot")) {
+                if (!monTour) {
+                    System.out.println("❌ Ce n'est pas votre tour !");
+                    continue;
+                }
+
                 String[] parts = input.split("\\s+");
                 if (parts.length != 3) {
                     System.out.println("Il faut exactement deux coordonnées: shoot x y");
@@ -114,60 +130,116 @@ public class ClientTCP {
                 // 1) Réponse sur TON tir
                 Message msg = recevoir();
                 if (msg instanceof ShotResponse res) {
+                    ResultatTir resultat = res.getResultat();
+
                     System.out.println("Ton tir en (" + x + "," + y + ") : "
-                            + res.getResultat()
+                            + resultat
                             + (res.getNomBateau() != null ? " sur " + res.getNomBateau() : ""));
 
-                    joueur.enregistrerResultatTir(x, y, res.getResultat());
+                    joueur.enregistrerResultatTir(x, y, resultat);
+
+                    // 🔥 NOUVEAU : Vérifier si on rejoue
+                    if (resultat == ResultatTir.HIT || resultat == ResultatTir.SUNK) {
+                        System.out.println("✨ TOUCHÉ ! Vous rejouez !");
+                        monTour = true; // On garde son tour
+                    } else {
+                        System.out.println("💧 Raté... C'est au tour de l'adversaire.");
+                        monTour = false; // On passe la main
+                    }
                 } else {
                     System.out.println("Réponse inattendue après tir (1) : " + (msg != null ? msg.getType() : "null"));
                 }
 
-                // 2) Message sur le tir de l'ENNEMI
+                // 🔥 TOUJOURS recevoir le message SERVER_SHOT (même si coordonnées = -1,-1)
                 Message msg2 = recevoir();
-                if (msg2 instanceof ServerShotMessage sshot) {
-                    int ex = sshot.getX();
-                    int ey = sshot.getY();
+                if (!(msg2 instanceof ServerShotMessage)) {
+                    System.out.println("Erreur: devrait recevoir SERVER_SHOT");
+                    continue;
+                }
 
-                    if (ex >= 0 && ey >= 0) {
-                        System.out.println(">> L'ennemi a tiré en (" + ex + "," + ey + ") : "
-                                + sshot.getResultat()
+                ServerShotMessage sshot = (ServerShotMessage) msg2;
+
+                // ✅ 🔥 VÉRIFIER SI VOUS AVEZ GAGNÉ (avant de traiter les tirs du serveur)
+                if (sshot.isGameOver() && "CLIENT".equals(sshot.getWinner())) {
+                    System.out.println("\n════════════════════════════════════");
+                    System.out.println("         FIN DE LA PARTIE");
+                    System.out.println("════════════════════════════════════");
+                    System.out.println("🎉 FÉLICITATIONS ! VOUS AVEZ GAGNÉ ! 🎉");
+                    System.out.println("════════════════════════════════════\n");
+
+                    // Proposer de rejouer
+                    if (!proposerRejouer(console)) {
+                        return;
+                    }
+                    monTour = true;
+                    continue; // Recommencer la boucle de jeu
+                }
+
+                // 2) Traiter le(s) message(s) SERVER_SHOT
+
+
+                // Si x >= 0, c'est un vrai tir du serveur
+                if (sshot.getX() >= 0 && sshot.getY() >= 0) {
+                    // Boucle pour gérer les tirs consécutifs de l'adversaire
+                    while (true) {
+                        int ex = sshot.getX();
+                        int ey = sshot.getY();
+
+                        ResultatTir resAdversaire = sshot.getResultat();
+                        System.out.println("\n>> L'ennemi a tiré en (" + ex + "," + ey + ") : "
+                                + resAdversaire
                                 + (sshot.getNomBateau() != null ? " sur " + sshot.getNomBateau() : ""));
                         joueur.recevoirTir(ex, ey);
-                    }
 
-                    // ✅ Vérifier si la partie est terminée
-                    if (sshot.isGameOver()) {
-                        System.out.println("\n════════════════════════════════════");
-                        System.out.println("         FIN DE LA PARTIE");
-                        System.out.println("════════════════════════════════════");
+                        // ✅ Vérifier game over IMMÉDIATEMENT
+                        if (sshot.isGameOver()) {
+                            System.out.println("\n════════════════════════════════════");
+                            System.out.println("         FIN DE LA PARTIE");
+                            System.out.println("════════════════════════════════════");
 
-                        if ("CLIENT".equals(sshot.getWinner())) {
-                            System.out.println("🎉 FÉLICITATIONS ! VOUS AVEZ GAGNÉ ! 🎉");
-                        } else if ("SERVER".equals(sshot.getWinner())) {
-                            System.out.println("😞 VOUS AVEZ PERDU... 😞");
+                            if ("CLIENT".equals(sshot.getWinner())) {
+                                System.out.println("🎉 FÉLICITATIONS ! VOUS AVEZ GAGNÉ ! 🎉");
+                            } else if ("SERVER".equals(sshot.getWinner())) {
+                                System.out.println("😞 VOUS AVEZ PERDU... 😞");
+                            } else {
+                                System.out.println("🤝 MATCH NUL 🤝");
+                            }
+                            System.out.println("════════════════════════════════════\n");
+
+                            // Proposer de rejouer
+                            if (!proposerRejouer(console)) {
+                                return;
+                            }
+                            monTour = true;
+                            break; // Sortir de la boucle
+                        }
+
+                        // Vérifier si l'adversaire rejoue
+                        if (resAdversaire == ResultatTir.HIT || resAdversaire == ResultatTir.SUNK) {
+                            System.out.println("💥 L'adversaire a touché ! Il tire encore...");
+
+                            // Attendre le prochain tir du serveur
+                            Message nextMsg = recevoir();
+                            if (nextMsg instanceof ServerShotMessage) {
+                                sshot = (ServerShotMessage) nextMsg;
+                            } else {
+                                System.out.println("Erreur: SERVER_SHOT attendu");
+                                break;
+                            }
+
                         } else {
-                            System.out.println("🤝 MATCH NUL 🤝");
+                            System.out.println("🎯 L'adversaire a raté ! C'est à votre tour !");
+                            monTour = true;
+                            break; // Sortir de la boucle
                         }
-                        System.out.println("════════════════════════════════════\n");
-
-                        // Proposer de rejouer
-                        if (!proposerRejouer(console)) {
-                            return; // Sortir de startMessaging()
-                        }
-                        // Si on arrive ici, c'est qu'on a choisi de rejouer
-                        // La boucle continue normalement
-                        continue;
                     }
-
-                } else if (msg2 != null) {
-                    System.out.println("Réponse inattendue après tir (2) : " + msg2.getType());
                 } else {
-                    System.out.println("Pas d'info sur le tir de l'ennemi.");
+                    // Le serveur n'a pas tiré (x = -1), c'est normal car vous avez touché
+                    // Vous gardez votre tour (déjà défini plus haut avec monTour = true)
                 }
 
             } else {
-                System.out.println("Commande inconnue. Utilisez : shoot x y ou quit");
+                System.out.println("Commande inconnue. Utilisez : shoot x y, show, ou quit");
             }
         }
     }
@@ -182,7 +254,6 @@ public class ClientTCP {
             String rep = console.readLine();
 
             if (rep == null) {
-                // Entrée terminée -> on quitte proprement
                 out.println("QUIT");
                 return false;
             }
@@ -192,30 +263,25 @@ public class ClientTCP {
             if (rep.equals("o") || rep.equals("oui") || rep.equals("y") || rep.equals("yes")) {
                 System.out.println("\n🔄 Préparation d'une nouvelle partie...");
 
-                // 1) Demander une nouvelle partie au serveur
                 NewGameRequest ng = new NewGameRequest();
                 envoyer(ng);
 
-                // 2) Attendre l'ACK du serveur
                 Message ack = recevoir();
                 if (ack != null) {
                     System.out.println("✓ Serveur : nouvelle partie prête.");
                 }
 
-                // 3) Recréer un joueur propre côté client
                 this.joueur = new Joueur("Client", 10);
-
-                // 4) Refaire la phase de placement
                 phasePlacement();
 
                 System.out.println("\n🎮 La nouvelle partie commence !\n");
 
-                return true; // On veut rejouer
+                return true;
 
             } else if (rep.equals("n") || rep.equals("non") || rep.equals("no")) {
                 System.out.println("\n👋 Merci d'avoir joué ! À bientôt !");
                 out.println("QUIT");
-                return false; // On veut quitter
+                return false;
 
             } else {
                 System.out.println("⚠️  Réponse invalide. Veuillez taper 'o' pour rejouer ou 'n' pour quitter.");
@@ -234,19 +300,18 @@ public class ClientTCP {
         System.out.println("Les coordonnées vont de 0 à 9 (grille 10x10).");
         System.out.println("═══════════════════════════════════════════\n");
 
-        // Placement des bateaux
-        placerUnBateau(console, new bâteaux.PorteAvion(0, 0), "PorteAvion", 5);
-        placerUnBateau(console, new bâteaux.Croiseur(0, 0), "Croiseur", 4);
-        placerUnBateau(console, new bâteaux.ContreTorpilleur(0, 0), "ContreTorpilleur", 3);
-        placerUnBateau(console, new bâteaux.Torpilleur(0, 0), "Torpilleur", 2);
+        placerUnBateau(console, new bâteaux.PorteAvion(0, 0), "PorteAvion", 5, ShipType.PORTE_AVION);
+        placerUnBateau(console, new bâteaux.Croiseur(0, 0), "Croiseur", 4, ShipType.CROISEUR);
+        placerUnBateau(console, new bâteaux.ContreTorpilleur(0, 0), "ContreTorpilleur", 3, ShipType.CONTRE_TORPILLEUR);
+        placerUnBateau(console, new bâteaux.Torpilleur(0, 0), "Torpilleur", 2, ShipType.TORPILLEUR);
 
-        System.out.println("\n✓ Tous les bateaux sont placés !");
+        System.out.println("\n✓ Tous les bateaux sont placés et envoyés au serveur !");
         System.out.println("\n═══ Ta grille personnelle ═══");
         joueur.getGrillePerso().afficher();
         System.out.println("═══════════════════════════════\n");
     }
 
-    private void placerUnBateau(BufferedReader console, bâteaux.Bâteau bateau, String nom, int longueur) throws IOException {
+    private void placerUnBateau(BufferedReader console, bâteaux.Bâteau bateau, String nom, int longueur, ShipType shipType) throws IOException {
         while (true) {
             System.out.println("\n📍 Placement du " + nom + " (longueur " + longueur + ")");
             System.out.print("Entrer x y orientation(H/V) (ex: 2 3 H) : ");
@@ -271,10 +336,13 @@ public class ClientTCP {
             }
 
             boolean horizontal;
+            Orientation orientation;
             if (parts[2].equalsIgnoreCase("H")) {
                 horizontal = true;
+                orientation = Orientation.HORIZONTAL;
             } else if (parts[2].equalsIgnoreCase("V")) {
                 horizontal = false;
+                orientation = Orientation.VERTICAL;
             } else {
                 System.out.println("❌ Orientation invalide. Utilise H ou V.");
                 continue;
@@ -285,6 +353,13 @@ public class ClientTCP {
                 System.out.println("❌ Impossible de placer ici (débordement ou chevauchement). Essaie ailleurs.");
             } else {
                 System.out.println("✓ " + nom + " placé en (" + x + "," + y + ") " + (horizontal ? "HORIZONTAL" : "VERTICAL"));
+
+                PlaceShipRequest placeMsg = new PlaceShipRequest(shipType, x, y, orientation);
+                envoyer(placeMsg);
+
+                Message response = recevoir();
+                System.out.println("   → Serveur a confirmé le placement");
+
                 joueur.getGrillePerso().afficher();
                 break;
             }
@@ -327,10 +402,8 @@ public class ClientTCP {
 
             client.connecter(ip, port);
 
-            // Placement initial des bateaux
             client.phasePlacement();
 
-            // Démarrer la boucle de jeu
             client.startMessaging();
 
         } catch (Exception e) {
