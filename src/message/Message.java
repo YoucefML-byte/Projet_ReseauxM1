@@ -6,10 +6,8 @@ public abstract class Message {
     protected MessegeType type;
     public MessegeType getType() { return type; }
 
-    // Chaque sous-classe sait se sérialiser
     public abstract String serialize();
 
-    // On détecte juste le type et on délègue
     public static Message deserialize(String raw) {
         String s = raw.trim();
 
@@ -21,12 +19,12 @@ public abstract class Message {
             return PlaceShipRequest.fromJson(s);
         } else if (s.contains("\"type\":\"SERVER_SHOT\"")) {
             return ServerShotMessage.fromJson(s);
-        } else if (s.contains("\"type\":\"NEW_GAME\"")) {        // 🔥 OBLIGATOIRE
+        } else if (s.contains("\"type\":\"NEW_GAME\"")) {
             return NewGameRequest.fromJson(s);
+        } else if (s.contains("\"type\":\"SET_USERNAME\"")) {  // 🔥 NOUVEAU
+            return SetUsernameRequest.fromJson(s);
         } else {
             throw new IllegalArgumentException("Type de message inconnu : " + s);
         }
     }
-
-
 }

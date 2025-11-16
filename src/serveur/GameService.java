@@ -30,19 +30,29 @@ public class GameService {
     private String winner;
 
     private final String clientId; // Pour identifier le client dans les logs
+    private String clientUsername = "Joueur"; // 🔥 NOUVEAU : pseudo du client
 
     // 🔥 NOUVEAU : Constructeur public (plus de singleton)
     public GameService(String clientId) {
         this.clientId = clientId;
+        // 🔥 NE PAS appeler resetGame() ici, attendre que le pseudo soit défini
+    }
+
+    // 🔥 NOUVEAU : Méthode pour définir le pseudo
+    public synchronized void setClientUsername(String username) {
+        this.clientUsername = username;
+        System.out.println("👤 [" + clientId + "] Pseudo défini : " + username);
+        // 🔥 Initialiser la partie APRÈS avoir défini le pseudo
         resetGame();
     }
 
     public synchronized void resetGame() {
-        System.out.println("🔄 [" + clientId + "] Réinitialisation de la partie...");
+        System.out.println("🔄 [" + clientUsername + "] Réinitialisation de la partie...");
         gameOver = false;
         winner = null;
 
-        joueurClient = new Joueur("Client", taille);
+        // 🔥 MODIFIÉ : Utiliser le pseudo du client
+        joueurClient = new Joueur(clientUsername, taille);
         joueurServeur = new Joueur("Serveur", taille);
 
         placerAleatoire(joueurServeur, new PorteAvion(0, 4));
@@ -50,7 +60,7 @@ public class GameService {
         placerAleatoire(joueurServeur, new ContreTorpilleur(0, 2));
         placerAleatoire(joueurServeur, new Torpilleur(0, 1));
 
-        System.out.println("⚓ [" + clientId + "] Nouvelle grille du SERVEUR :");
+        System.out.println("⚓ [" + clientUsername + "] Nouvelle grille du SERVEUR :");
         joueurServeur.getGrillePerso().afficher();
     }
 
@@ -65,12 +75,12 @@ public class GameService {
         boolean horizontal = (req.getOrientation() == Orientation.HORIZONTAL);
         boolean ok = joueurClient.placerBateau(b, req.getX(), req.getY(), horizontal);
 
-        System.out.println("[" + clientId + "] Placement bateau CLIENT (" + req.getShipType()
+        System.out.println("[" + clientUsername + "] Placement bateau (" + req.getShipType()
                 + ") en (" + req.getX() + "," + req.getY() + ") "
                 + (horizontal ? "H" : "V") + " -> " + (ok ? "OK" : "ECHEC"));
 
         if (ok) {
-            System.out.println("[" + clientId + "] Grille du CLIENT :");
+            System.out.println("[" + clientUsername + "] Grille de " + clientUsername + " :");
             joueurClient.getGrillePerso().afficher();
         }
 
@@ -79,8 +89,14 @@ public class GameService {
 
     public synchronized RoundResult processShot(ShotRequest req) {
 
+        // 🔥 Si la partie n'est pas initialisée, le faire maintenant
+        if (joueurClient == null || joueurServeur == null) {
+            System.out.println("⚠️ [" + clientUsername + "] Partie non initialisée, initialisation...");
+            resetGame();
+        }
+
         if (gameOver) {
-            System.out.println("⚠️ [" + clientId + "] Tir ignoré : partie terminée");
+            System.out.println("⚠️ [" + clientUsername + "] Tir ignoré : partie terminée");
             ShotResponse neutral = new ShotResponse(ResultatTir.MISS, null);
             List<ServerShotMessage> emptyList = new ArrayList<>();
             emptyList.add(new ServerShotMessage(-1, -1, ResultatTir.MISS, null, true, winner));
@@ -90,7 +106,7 @@ public class GameService {
         int x = req.getX();
         int y = req.getY();
 
-        System.out.println("🎯 [" + clientId + "] Tir du CLIENT en (" + x + "," + y + ")");
+        System.out.println("🎯 [" + clientUsername + "] Tir de " + clientUsername + " en (" + x + "," + y + ")");
 
         // 1) Tir du client sur le serveur
         Grille grilleServ = joueurServeur.getGrillePerso();
@@ -101,14 +117,16 @@ public class GameService {
 
         joueurClient.getGrilleTirs().marquerResultatTir(x, y, resultatClient);
 
-        System.out.println("   → [" + clientId + "] Résultat : " + resultatClient
+        System.out.println("   → [" + clientUsername + "] Résultat : " + resultatClient
                 + (nomBateauClient != null ? (" sur " + nomBateauClient) : ""));
 
         // 2) Check : le serveur a-t-il perdu ?
         if (joueurServeur.aPerdu()) {
             gameOver = true;
-            winner = "CLIENT";
-            System.out.println("💥 [" + clientId + "] CLIENT a gagné !");
+            winner = clientUsername; // 🔥 MODIFIÉ : Utiliser le pseudo
+            System.out.println("\n════════════════════════════════════");
+            System.out.println("💥 [" + clientUsername + "] 🎉 " + clientUsername.toUpperCase() + " A GAGNÉ LA PARTIE ! 🎉");
+            System.out.println("════════════════════════════════════\n");
 
             ShotResponse clientRes = new ShotResponse(resultatClient, nomBateauClient);
             List<ServerShotMessage> serverShots = new ArrayList<>();
@@ -118,7 +136,7 @@ public class GameService {
 
         // 3) Si le client a touché, le serveur NE tire PAS
         if (resultatClient == ResultatTir.HIT || resultatClient == ResultatTir.SUNK) {
-            System.out.println("✨ [" + clientId + "] Client touché, il rejoue");
+            System.out.println("✨ [" + clientUsername + "] " + clientUsername + " a touché, il rejoue");
 
             ShotResponse clientRes = new ShotResponse(resultatClient, nomBateauClient);
             List<ServerShotMessage> serverShots = new ArrayList<>();
@@ -127,7 +145,7 @@ public class GameService {
         }
 
         // 4) Le client a raté : le serveur tire
-        System.out.println("💧 [" + clientId + "] Client raté, tour du serveur");
+        System.out.println("💧 [" + clientUsername + "] " + clientUsername + " a raté, tour du serveur");
         List<ServerShotMessage> serverShots = effectuerTirsServeurConsecutifs();
 
         ShotResponse clientRes = new ShotResponse(resultatClient, nomBateauClient);
@@ -158,8 +176,8 @@ public class GameService {
                 nomBateau = (tr.getBateau() != null) ? tr.getBateau().getNom() : null;
                 grilleTirsServeur.marquerResultatTir(x, y, res);
 
-                System.out.println("🔥 [" + clientId + "] SERVEUR tire en (" + x + "," + y + ")");
-                System.out.println("   → [" + clientId + "] Résultat : " + res + (nomBateau != null ? (" sur " + nomBateau) : ""));
+                System.out.println("🔥 [" + clientUsername + "] SERVEUR tire en (" + x + "," + y + ")");
+                System.out.println("   → [" + clientUsername + "] Résultat : " + res + (nomBateau != null ? (" sur " + nomBateau) : ""));
                 break;
             }
 
@@ -168,7 +186,9 @@ public class GameService {
             if (clientLost) {
                 gameOver = true;
                 winner = "SERVER";
-                System.out.println("💀 [" + clientId + "] SERVEUR a gagné !");
+                System.out.println("\n════════════════════════════════════");
+                System.out.println("💀 [" + clientUsername + "] 😞 LE SERVEUR A GAGNÉ ! " + clientUsername.toUpperCase() + " A PERDU 😞");
+                System.out.println("════════════════════════════════════\n");
                 shots.add(new ServerShotMessage(x, y, res, nomBateau, true, winner));
                 return shots;
             }
@@ -176,11 +196,11 @@ public class GameService {
             shots.add(new ServerShotMessage(x, y, res, nomBateau, false, null));
 
             if (res == ResultatTir.MISS) {
-                System.out.println("💧 [" + clientId + "] Serveur raté, tour du client");
+                System.out.println("💧 [" + clientUsername + "] Serveur a raté, tour de " + clientUsername);
                 return shots;
             }
 
-            System.out.println("✨ [" + clientId + "] Serveur touché, il tire encore");
+            System.out.println("✨ [" + clientUsername + "] Serveur a touché, il tire encore");
         }
     }
 
@@ -197,7 +217,7 @@ public class GameService {
 
             boolean ok = joueur.placerBateau(bateau, x, y, horizontal);
             if (ok) {
-                System.out.println("[" + clientId + "] " + bateau.getNom() + " placé en (" + x + "," + y + ") "
+                System.out.println("[" + clientUsername + "] " + bateau.getNom() + " placé en (" + x + "," + y + ") "
                         + (horizontal ? "HORIZONTAL" : "VERTICAL"));
                 break;
             }

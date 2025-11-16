@@ -106,26 +106,26 @@ public class ClientTCP {
 
                 String[] parts = input.split("\\s+");
                 if (parts.length != 3) {
-                    System.out.println("Il faut exactement deux coordonnées: shoot COLONNE LIGNE (de 1 à 10)");
+                    System.out.println("Il faut exactement deux coordonnées: shoot X Y (X=horizontal, Y=vertical, de 1 à 10)");
                     continue;
                 }
 
-                int col, lig;
+                int x, y;
                 try {
-                    // 🔥 Premier chiffre = COLONNE (x), Deuxième chiffre = LIGNE (y)
-                    col = Integer.parseInt(parts[1]) - 1;
-                    lig = Integer.parseInt(parts[2]) - 1;
+                    // X = horizontal (colonne), Y = vertical (ligne)
+                    x = Integer.parseInt(parts[1]) - 1;
+                    y = Integer.parseInt(parts[2]) - 1;
                 } catch (NumberFormatException nfe) {
                     System.out.println("Les coordonnées doivent être des entiers.");
                     continue;
                 }
-                if (col < 0 || col > 9 || lig < 0 || lig > 9) {
+                if (x < 0 || x > 9 || y < 0 || y > 9) {
                     System.out.println("Les coordonnées doivent être entre 1 et 10.");
                     continue;
                 }
 
                 // Envoi du tir
-                ShotRequest req = new ShotRequest(col, lig);
+                ShotRequest req = new ShotRequest(x, y);
                 envoyer(req);
 
                 // 1) Réponse sur TON tir
@@ -133,12 +133,11 @@ public class ClientTCP {
                 if (msg instanceof ShotResponse res) {
                     ResultatTir resultat = res.getResultat();
 
-                    // 🔥 Afficher les coordonnées en format 1-10
-                    System.out.println("Ton tir colonne " + (col+1) + ", ligne " + (lig+1) + " : "
+                    System.out.println("Ton tir en X=" + (x+1) + " Y=" + (y+1) + " : "
                             + resultat
                             + (res.getNomBateau() != null ? " sur " + res.getNomBateau() : ""));
 
-                    joueur.enregistrerResultatTir(col, lig, resultat);
+                    joueur.enregistrerResultatTir(x, y, resultat);
 
                     // 🔥 NOUVEAU : Vérifier si on rejoue
                     if (resultat == ResultatTir.HIT || resultat == ResultatTir.SUNK) {
@@ -162,11 +161,11 @@ public class ClientTCP {
                 ServerShotMessage sshot = (ServerShotMessage) msg2;
 
                 // ✅ 🔥 VÉRIFIER SI VOUS AVEZ GAGNÉ (avant de traiter les tirs du serveur)
-                if (sshot.isGameOver() && "CLIENT".equals(sshot.getWinner())) {
+                if (sshot.isGameOver() && sshot.getWinner() != null && !sshot.getWinner().equals("SERVER")) {
                     System.out.println("\n════════════════════════════════════");
                     System.out.println("         FIN DE LA PARTIE");
                     System.out.println("════════════════════════════════════");
-                    System.out.println("🎉 FÉLICITATIONS ! VOUS AVEZ GAGNÉ ! 🎉");
+                    System.out.println("🎉 FÉLICITATIONS " + sshot.getWinner().toUpperCase() + " ! VOUS AVEZ GAGNÉ ! 🎉");
                     System.out.println("════════════════════════════════════\n");
 
                     // Proposer de rejouer
@@ -178,6 +177,7 @@ public class ClientTCP {
                 }
 
                 // 2) Traiter le(s) message(s) SERVER_SHOT
+
 
                 // Si x >= 0, c'est un vrai tir du serveur
                 if (sshot.getX() >= 0 && sshot.getY() >= 0) {
@@ -198,12 +198,10 @@ public class ClientTCP {
                             System.out.println("         FIN DE LA PARTIE");
                             System.out.println("════════════════════════════════════");
 
-                            if ("CLIENT".equals(sshot.getWinner())) {
-                                System.out.println("🎉 FÉLICITATIONS ! VOUS AVEZ GAGNÉ ! 🎉");
-                            } else if ("SERVER".equals(sshot.getWinner())) {
-                                System.out.println("😞 VOUS AVEZ PERDU... 😞");
+                            if ("SERVER".equals(sshot.getWinner())) {
+                                System.out.println("😞 LE SERVEUR A GAGNÉ... VOUS AVEZ PERDU 😞");
                             } else {
-                                System.out.println("🤝 MATCH NUL 🤝");
+                                System.out.println("🎉 FÉLICITATIONS " + sshot.getWinner().toUpperCase() + " ! VOUS AVEZ GAGNÉ ! 🎉");
                             }
                             System.out.println("════════════════════════════════════\n");
 
@@ -315,7 +313,7 @@ public class ClientTCP {
     private void placerUnBateau(BufferedReader console, bâteaux.Bâteau bateau, String nom, int longueur, ShipType shipType) throws IOException {
         while (true) {
             System.out.println("\n📍 Placement du " + nom + " (longueur " + longueur + ")");
-            System.out.print("Entrer X(horizontal) Y(vertical) orientation (ex: 2 3 H) : ");
+            System.out.print("Entrer X(vertical) Y(horizontal) orientation (ex: 2 3 H) : ");
             String ligne = console.readLine();
             if (ligne == null) {
                 System.out.println("Entrée interrompue, placement annulé.");
@@ -411,8 +409,29 @@ public class ClientTCP {
 
             client.connecter(ip, port);
 
+            // 🔥 NOUVEAU : Demander le pseudo
+            System.out.print("\nEntrez votre pseudo : ");
+            String pseudo = console.readLine();
+            if (pseudo == null || pseudo.trim().isEmpty()) {
+                pseudo = "Joueur";
+            }
+            pseudo = pseudo.trim();
+
+            // Envoyer le pseudo au serveur
+            SetUsernameRequest usernameMsg = new SetUsernameRequest(pseudo);
+            client.envoyer(usernameMsg);
+
+            // Attendre la confirmation
+            Message response = client.recevoir();
+            System.out.println("✓ Bienvenue " + pseudo + " !\n");
+
+            // Mettre à jour le joueur avec le bon pseudo
+            client.joueur = new Joueur(pseudo, 10);
+
+            // Placement initial des bateaux
             client.phasePlacement();
 
+            // Démarrer la boucle de jeu
             client.startMessaging();
 
         } catch (Exception e) {

@@ -74,6 +74,10 @@ public class ClientHandler implements Runnable {
                         System.out.println("🔨 [" + clientId + "] NEW_GAME demandé");
                         game.resetGame();
                         out.println("{\"type\":\"NEW_GAME_RESPONSE\",\"ok\":true}");
+                    } else if (msg instanceof SetUsernameRequest usernameReq) {  // 🔥 NOUVEAU
+                        String username = usernameReq.getUsername();
+                        game.setClientUsername(username);
+                        out.println("{\"type\":\"INFO\",\"msg\":\"Username set to " + username + "\"}");
                     } else {
                         out.println(errorJson("UNSUPPORTED_TYPE", "message non pris en charge"));
                     }
