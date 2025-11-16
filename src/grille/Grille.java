@@ -8,15 +8,10 @@ public class Grille {
     private final int largeur;
     private final int hauteur;
 
-    // Quel bateau occupe chaque case (null si vide)
     private final Bâteau[][] cases;
-    // A-t-on déjà tiré ici ?
     private final boolean[][] dejaTire;
-
-    // Mémo des résultats (utile pour la grille de TIRS d’un joueur)
     private final ResultatTir[][] tirMemo;
 
-    // === NOUVEAU: constructeur carré pour Grille(taille) ===
     public Grille(int taille) {
         this(taille, taille);
     }
@@ -33,7 +28,6 @@ public class Grille {
         return x >= 0 && y >= 0 && x < largeur && y < hauteur;
     }
 
-    /** Place un bateau si possible. Retourne true si ok, false sinon (débordement/chevauchement). */
     public boolean placer(Bâteau b, int x, int y, Orientation orientation) {
         int L = b.getLongueur();
 
@@ -54,12 +48,10 @@ public class Grille {
         return true;
     }
 
-    // === NOUVEAU: alias attendu par Joueur ===
     public boolean placerBateau(Bâteau b, int x, int y, boolean horizontal) {
         return placer(b, x, y, horizontal ? Orientation.HORIZONTAL : Orientation.VERTICAL);
     }
 
-    /** Applique un tir et retourne le résultat + le bateau (ou null si MISS). */
     public TirResult tirer(int x, int y) {
         if (!inBounds(x, y)) {
             return new TirResult(ResultatTir.OUT_OF_BOUNDS, null);
@@ -71,63 +63,54 @@ public class Grille {
 
         Bâteau b = cases[x][y];
         if (b == null) {
-            // Mémo côté “grillePerso” (optionnel) : marquer MISS
             tirMemo[x][y] = ResultatTir.MISS;
             return new TirResult(ResultatTir.MISS, null);
         }
 
         b.toucher();
         if (b.estCoule()) {
-            tirMemo[x][y] = ResultatTir.SUNK; // mémo local
+            tirMemo[x][y] = ResultatTir.SUNK;
             return new TirResult(ResultatTir.SUNK, b);
         } else {
-            tirMemo[x][y] = ResultatTir.HIT;  // mémo local
+            tirMemo[x][y] = ResultatTir.HIT;
             return new TirResult(ResultatTir.HIT, b);
         }
     }
 
-    // === NOUVEAU: attendu par Joueur (juste le résultat, pas le bateau) ===
     public ResultatTir tirerSurMoi(int x, int y) {
         return tirer(x, y).getResultat();
     }
 
-    // === NOUVEAU: pour la grille de TIRS d’un joueur ===
     public void marquerResultatTir(int x, int y, ResultatTir resultat) {
         if (!inBounds(x, y)) return;
-        // On ne force pas dejaTire ici, on stocke juste l’info “connue” par le joueur tireur
         tirMemo[x][y] = resultat;
     }
 
-    // === NOUVEAU: affichage simple (ASCII) ===
     public void afficher() {
-        // Légende:
-        // 'B' = bateau non touché (sur grillePerso)
-        // 'X' = touché
-        // 'o' = manqué
-        // '.' = inconnu/vide
-
-        // --- En-tête : numéros de colonnes (1..largeur) ---
-        System.out.print("     "); // marge gauche
+        // En-tête : X (horizontal) de 1 à 10
+        System.out.print("  X: "); // Label pour l'axe X
         for (int col = 1; col <= largeur; col++) {
-            System.out.print(col + " ");
+            if (col <= 10) {
+                System.out.print(" "+col );
+            }
         }
         System.out.println();
 
-        System.out.print("    ");
+        System.out.print("     ");
         for (int col = 1; col <= largeur; col++) {
             System.out.print("--");
         }
         System.out.println();
 
-        // --- Lignes ---
+        // Lignes : Y (vertical) de 1 à 10
         for (int yIdx = 0; yIdx < hauteur; yIdx++) {
-            int rowLabel = yIdx + 1;  // ce qu'on affiche (1..hauteur)
+            int rowLabel = yIdx + 1;
 
-            // numéro de ligne aligné
+            // Y: suivi du numéro de ligne
             if (rowLabel < 10) {
-                System.out.print(" " + rowLabel + " | ");
+                System.out.print("Y:" + rowLabel + " | ");
             } else {
-                System.out.print(rowLabel + " | ");
+                System.out.print("Y:" + rowLabel + "| ");
             }
 
             StringBuilder sb = new StringBuilder();
@@ -136,18 +119,15 @@ public class Grille {
                 char c = '.';
 
                 if (cases[xIdx][yIdx] != null) {
-                    // Il y a un bateau ici
                     if (dejaTire[xIdx][yIdx]) {
-                        c = 'X'; // touché/coulé
+                        c = 'X';
                     } else {
-                        c = 'B'; // bateau non touché (visible sur grillePerso)
+                        c = 'B';
                     }
                 } else {
-                    // Pas de bateau ici
                     if (dejaTire[xIdx][yIdx]) {
-                        c = 'o'; // tiré et raté
+                        c = 'o';
                     } else if (tirMemo[xIdx][yIdx] != null) {
-                        // Sur la grille des tirs (adversaire), on affiche ce qu'on sait
                         ResultatTir r = tirMemo[xIdx][yIdx];
                         if (r == ResultatTir.MISS) c = 'o';
                         else if (r == ResultatTir.HIT || r == ResultatTir.SUNK) c = 'X';
@@ -161,12 +141,9 @@ public class Grille {
         }
     }
 
-
-
-    /** Petit record/POJO pour renvoyer (résultat, bateau). */
     public static class TirResult {
         private final ResultatTir resultat;
-        private final Bâteau bateau; // peut être null
+        private final Bâteau bateau;
 
         public TirResult(ResultatTir resultat, Bâteau bateau) {
             this.resultat = resultat;

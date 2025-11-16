@@ -8,7 +8,7 @@ public class ServeurTCP {
     public static void main(String[] args) {
         System.out.println("Serveur en attente de clients...");
 
-        try (ServerSocket serverSocket = new ServerSocket(9999)) {
+        try (ServerSocket serverSocket = new ServerSocket(7777)) {
 
             // Boucle infinie : on accepte plusieurs clients
             while (true) {

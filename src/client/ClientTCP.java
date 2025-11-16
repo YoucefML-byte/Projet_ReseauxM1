@@ -106,25 +106,26 @@ public class ClientTCP {
 
                 String[] parts = input.split("\\s+");
                 if (parts.length != 3) {
-                    System.out.println("Il faut exactement deux coordonnées: shoot x y");
+                    System.out.println("Il faut exactement deux coordonnées: shoot COLONNE LIGNE (de 1 à 10)");
                     continue;
                 }
 
-                int x, y;
+                int col, lig;
                 try {
-                    x = Integer.parseInt(parts[1]);
-                    y = Integer.parseInt(parts[2]);
+                    // 🔥 Premier chiffre = COLONNE (x), Deuxième chiffre = LIGNE (y)
+                    col = Integer.parseInt(parts[1]) - 1;
+                    lig = Integer.parseInt(parts[2]) - 1;
                 } catch (NumberFormatException nfe) {
                     System.out.println("Les coordonnées doivent être des entiers.");
                     continue;
                 }
-                if (x < 0 || y < 0) {
-                    System.out.println("Coordonnées négatives interdites.");
+                if (col < 0 || col > 9 || lig < 0 || lig > 9) {
+                    System.out.println("Les coordonnées doivent être entre 1 et 10.");
                     continue;
                 }
 
                 // Envoi du tir
-                ShotRequest req = new ShotRequest(x, y);
+                ShotRequest req = new ShotRequest(col, lig);
                 envoyer(req);
 
                 // 1) Réponse sur TON tir
@@ -132,11 +133,12 @@ public class ClientTCP {
                 if (msg instanceof ShotResponse res) {
                     ResultatTir resultat = res.getResultat();
 
-                    System.out.println("Ton tir en (" + x + "," + y + ") : "
+                    // 🔥 Afficher les coordonnées en format 1-10
+                    System.out.println("Ton tir colonne " + (col+1) + ", ligne " + (lig+1) + " : "
                             + resultat
                             + (res.getNomBateau() != null ? " sur " + res.getNomBateau() : ""));
 
-                    joueur.enregistrerResultatTir(x, y, resultat);
+                    joueur.enregistrerResultatTir(col, lig, resultat);
 
                     // 🔥 NOUVEAU : Vérifier si on rejoue
                     if (resultat == ResultatTir.HIT || resultat == ResultatTir.SUNK) {
@@ -176,7 +178,6 @@ public class ClientTCP {
                 }
 
                 // 2) Traiter le(s) message(s) SERVER_SHOT
-
 
                 // Si x >= 0, c'est un vrai tir du serveur
                 if (sshot.getX() >= 0 && sshot.getY() >= 0) {
@@ -297,7 +298,7 @@ public class ClientTCP {
         System.out.println("═══════════════════════════════════════════");
         System.out.println("Tu vas placer : PorteAvion (5), Croiseur (4),");
         System.out.println("                ContreTorpilleur (3), Torpilleur (2)");
-        System.out.println("Les coordonnées vont de 0 à 9 (grille 10x10).");
+        System.out.println("Les coordonnées vont de 1 à 10 (grille 10x10).");
         System.out.println("═══════════════════════════════════════════\n");
 
         placerUnBateau(console, new bâteaux.PorteAvion(0, 0), "PorteAvion", 5, ShipType.PORTE_AVION);
@@ -314,7 +315,7 @@ public class ClientTCP {
     private void placerUnBateau(BufferedReader console, bâteaux.Bâteau bateau, String nom, int longueur, ShipType shipType) throws IOException {
         while (true) {
             System.out.println("\n📍 Placement du " + nom + " (longueur " + longueur + ")");
-            System.out.print("Entrer x y orientation(H/V) (ex: 2 3 H) : ");
+            System.out.print("Entrer X(horizontal) Y(vertical) orientation (ex: 2 3 H) : ");
             String ligne = console.readLine();
             if (ligne == null) {
                 System.out.println("Entrée interrompue, placement annulé.");
@@ -328,10 +329,16 @@ public class ClientTCP {
 
             int x, y;
             try {
-                x = Integer.parseInt(parts[0]);
-                y = Integer.parseInt(parts[1]);
+                // L'utilisateur entre X (horizontal) Y (vertical)
+                x = Integer.parseInt(parts[0]) - 1;  // horizontal (colonne)
+                y = Integer.parseInt(parts[1]) - 1;  // vertical (ligne)
             } catch (NumberFormatException e) {
-                System.out.println("❌ x et y doivent être des entiers.");
+                System.out.println("❌ Les coordonnées doivent être des entiers.");
+                continue;
+            }
+
+            if (x < 0 || x > 9 || y < 0 || y > 9) {
+                System.out.println("❌ Les coordonnées doivent être entre 1 et 10.");
                 continue;
             }
 
@@ -348,11 +355,13 @@ public class ClientTCP {
                 continue;
             }
 
+            // 🔥 INVERSER : le tableau est [colonne][ligne] donc on passe (x, y)
+            // x = colonne (horizontal), y = ligne (vertical)
             boolean ok = joueur.placerBateau(bateau, x, y, horizontal);
             if (!ok) {
                 System.out.println("❌ Impossible de placer ici (débordement ou chevauchement). Essaie ailleurs.");
             } else {
-                System.out.println("✓ " + nom + " placé en (" + x + "," + y + ") " + (horizontal ? "HORIZONTAL" : "VERTICAL"));
+                System.out.println("✓ " + nom + " placé en X=" + (x+1) + " Y=" + (y+1) + " " + (horizontal ? "HORIZONTAL" : "VERTICAL"));
 
                 PlaceShipRequest placeMsg = new PlaceShipRequest(shipType, x, y, orientation);
                 envoyer(placeMsg);
