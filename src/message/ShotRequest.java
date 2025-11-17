@@ -15,13 +15,16 @@ public class ShotRequest extends Message {
     public int getX() { return x; }
     public int getY() { return y; }
 
+    //-----------------------------------------------------------------------------------------
+
+    //Format du message renvoyer par la méthode : { type : SHOT_REQUEST , x : 8 , y : 9 }
     @Override
     public String serialize() {
         // On garde un JSON simple et toujours dans le même format
         return "{\"type\":\"SHOT_REQUEST\",\"x\":" + x + ",\"y\":" + y + "}";
     }
 
-    //  version très simple, qui suppose que le JSON vient DE NOTRE serialize()
+    // Renvoie un objet ShotRequest à partir d'une châine de caractéres si elle respecte bien le format vu en haut
     public static ShotRequest fromJson(String json) {
         // On enlève les { } et "
         String cleaned = json.replace("{", "")

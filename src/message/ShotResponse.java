@@ -4,7 +4,7 @@ import etats.MessegeType;
 import etats.ResultatTir;
 
 public class ShotResponse extends Message {
-    private final ResultatTir resultat;   // ton enum
+    private final ResultatTir resultat;   // le resultat du tir
     private final String nomBateau;       // peut être null
 
     public ShotResponse(ResultatTir resultat, String nomBateau) {
@@ -21,6 +21,9 @@ public class ShotResponse extends Message {
     public ResultatTir getResultat() { return resultat; }
     public String getNomBateau() { return nomBateau; }
 
+    //--------------------------------------------------------------------------------------
+
+    //Format du message renvoyer par la méthode : { type : SHOT_RESPONSE , resultat : HIT/MISS... , nomBateau : TORPILLEUR }
     @Override
     public String serialize() {
         String nb = (nomBateau == null) ? "null" : ("\"" + nomBateau + "\"");
@@ -28,6 +31,7 @@ public class ShotResponse extends Message {
                 + "\",\"nomBateau\":" + nb + "}";
     }
 
+    // Renvoie un objet ShotResponse à partir d'une châine de caractéres si elle respecte bien le format vu en haut
     public static ShotResponse fromJson(String json) {
         String cleaned = json.replace("{", "")
                 .replace("}", "")

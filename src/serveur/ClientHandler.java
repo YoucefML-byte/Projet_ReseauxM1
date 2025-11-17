@@ -10,16 +10,21 @@ import java.util.List;
 
 public class ClientHandler implements Runnable {
     private final Socket socket;
-    private final GameService game; // 🔥 CHAQUE CLIENT A SA PROPRE INSTANCE
+    private final GameService game; //connexion avec un client posséde sa propre instance d'une partie
     private final String clientId;
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
         this.clientId = socket.getInetAddress().getHostAddress() + ":" + socket.getPort();
-        // 🔥 CRÉER UNE NOUVELLE INSTANCE DE GAMESERVICE POUR CE CLIENT
         this.game = new GameService(clientId);
     }
 
+    //-------------------------------------------------------------------------------------
+
+    /**
+     *  à chaque clientHandler creer cette méthode est lancé et elle permet de recvoir les message envoyé par le client correspondant
+     *  et de le traiter et d'envoyer les réponse
+     * */
     @Override
     public void run() {
         Thread.currentThread().setName("Client-" + clientId);
@@ -35,10 +40,6 @@ public class ClientHandler implements Runnable {
                 while ((raw = in.readLine()) != null) {
                     String line = raw.trim();
                     if (line.isEmpty()) continue;
-                    if (line.length() > 4096) {
-                        out.println(errorJson("PAYLOAD_TOO_LARGE", "message trop long"));
-                        continue;
-                    }
 
                     if (line.equalsIgnoreCase("quit")) {
                         System.out.println("👋 [" + clientId + "] Client se déconnecte");
@@ -93,6 +94,9 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * cette fonction permet d'envoyer un message d'erreur selon le format suivant : {type : ERROR, code : ...., msg : ...}
+     * */
     private static String errorJson(String code, String msg) {
         return "{\"type\":\"ERROR\",\"code\":\"" + code + "\",\"msg\":\"" + msg + "\"}";
     }

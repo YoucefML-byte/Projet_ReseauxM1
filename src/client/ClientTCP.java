@@ -1,5 +1,6 @@
 package client;
 
+import bâteaux.*;
 import etats.ResultatTir;
 import etats.Orientation;
 import etats.ShipType;
@@ -13,11 +14,11 @@ import java.nio.charset.StandardCharsets;
 
 public class ClientTCP {
 
-    private Socket socket;
-    private BufferedReader in;
-    private PrintWriter out;
+    private Socket socket;// la socket de communication
+    private BufferedReader in; // le flux d'entrée
+    private PrintWriter out;// le flux de sortie
 
-    private Joueur joueur;
+    private Joueur joueur;//le joueur représenter par ce clientTCP
 
     public ClientTCP() {
         this("Client", 10);
@@ -27,6 +28,11 @@ public class ClientTCP {
         this.joueur = new Joueur(nomJoueur, tailleGrille);
     }
 
+  //----------------------------------------------------------------------------------------------------------
+
+    /**
+     * Cette fonction permet de faire une demande de connexion au serveur qui comme adresse ip ip est port comme port
+     * */
     public void connecter(String ip, int port) throws IOException {
         socket = new Socket();
         socket.connect(new InetSocketAddress(ip, port), 3000);
@@ -37,11 +43,18 @@ public class ClientTCP {
         System.out.println("Connecté au serveur : " + ip + ":" + port);
     }
 
+    /**
+     * Cette fonction sert envoyer des message vers le serveur en encaplsulant le message sous fomre de chaine de carcteres
+     * */
+
     public void envoyer(Message msg) {
         String texte = msg.serialize();
         out.println(texte);
     }
 
+    /**
+     * cette fonction sert à gerer la reception des message du serveur
+     * */
     public Message recevoir() {
         try {
             String raw = in.readLine();
@@ -62,6 +75,10 @@ public class ClientTCP {
         }
     }
 
+
+    /**
+     * Cette fonction permet de gerer le dialogue entre le joueur et le serveur tout au long de la session
+     * */
     public void startMessaging() throws IOException {
         BufferedReader console = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
         boolean monTour = true; // Le client commence
@@ -128,7 +145,7 @@ public class ClientTCP {
                 ShotRequest req = new ShotRequest(x, y);
                 envoyer(req);
 
-                // 1) Réponse sur TON tir
+                // 1) Réponse du tir du joueur
                 Message msg = recevoir();
                 if (msg instanceof ShotResponse res) {
                     ResultatTir resultat = res.getResultat();
@@ -139,7 +156,7 @@ public class ClientTCP {
 
                     joueur.enregistrerResultatTir(x, y, resultat);
 
-                    // 🔥 NOUVEAU : Vérifier si on rejoue
+                    // Vérifier si on rejoue
                     if (resultat == ResultatTir.HIT || resultat == ResultatTir.SUNK) {
                         System.out.println("✨ TOUCHÉ ! Vous rejouez !");
                         monTour = true; // On garde son tour
@@ -151,7 +168,7 @@ public class ClientTCP {
                     System.out.println("Réponse inattendue après tir (1) : " + (msg != null ? msg.getType() : "null"));
                 }
 
-                // 🔥 TOUJOURS recevoir le message SERVER_SHOT (même si coordonnées = -1,-1)
+                // recevoir le message du serveur
                 Message msg2 = recevoir();
                 if (!(msg2 instanceof ServerShotMessage)) {
                     System.out.println("Erreur: devrait recevoir SERVER_SHOT");
@@ -160,7 +177,7 @@ public class ClientTCP {
 
                 ServerShotMessage sshot = (ServerShotMessage) msg2;
 
-                // ✅ 🔥 VÉRIFIER SI VOUS AVEZ GAGNÉ (avant de traiter les tirs du serveur)
+                // On verifie si le joueur à gagner avant de traiter les tirs de l'ennemi
                 if (sshot.isGameOver() && sshot.getWinner() != null && !sshot.getWinner().equals("SERVER")) {
                     System.out.println("\n════════════════════════════════════");
                     System.out.println("         FIN DE LA PARTIE");
@@ -192,7 +209,7 @@ public class ClientTCP {
                                 + (sshot.getNomBateau() != null ? " sur " + sshot.getNomBateau() : ""));
                         joueur.recevoirTir(ex, ey);
 
-                        // ✅ Vérifier game over IMMÉDIATEMENT
+                        //  On verifie si la partie est terminé
                         if (sshot.isGameOver()) {
                             System.out.println("\n════════════════════════════════════");
                             System.out.println("         FIN DE LA PARTIE");
@@ -233,8 +250,8 @@ public class ClientTCP {
                         }
                     }
                 } else {
-                    // Le serveur n'a pas tiré (x = -1), c'est normal car vous avez touché
-                    // Vous gardez votre tour (déjà défini plus haut avec monTour = true)
+
+                    // le client garde son tour (déjà défini plus haut avec monTour = true)
                 }
 
             } else {
@@ -244,7 +261,7 @@ public class ClientTCP {
     }
 
     /**
-     * Propose au joueur de rejouer ou de quitter
+     * Propose au joueur de rejouer ou de quitter aprés la fin d'une partie
      * @return true si le joueur veut rejouer, false s'il veut quitter
      */
     private boolean proposerRejouer(BufferedReader console) throws IOException {
@@ -259,7 +276,7 @@ public class ClientTCP {
 
             rep = rep.trim().toLowerCase();
 
-            if (rep.equals("o") || rep.equals("oui") || rep.equals("y") || rep.equals("yes")) {
+            if (rep.equals("o") || rep.equals("oui") || rep.equals("O") || rep.equals("OUI")) {
                 System.out.println("\n🔄 Préparation d'une nouvelle partie...");
 
                 NewGameRequest ng = new NewGameRequest();
@@ -288,6 +305,10 @@ public class ClientTCP {
         }
     }
 
+
+    /**
+     * Cette methode permet de lancer la phase de placememnt des bâteaux du joueur
+     * */
     private void phasePlacement() throws IOException {
         BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
 
@@ -299,10 +320,10 @@ public class ClientTCP {
         System.out.println("Les coordonnées vont de 1 à 10 (grille 10x10).");
         System.out.println("═══════════════════════════════════════════\n");
 
-        placerUnBateau(console, new bâteaux.PorteAvion(), "PorteAvion", 5, ShipType.PORTE_AVION);
-        placerUnBateau(console, new bâteaux.Croiseur(), "Croiseur", 4, ShipType.CROISEUR);
-        placerUnBateau(console, new bâteaux.ContreTorpilleur(), "ContreTorpilleur", 3, ShipType.CONTRE_TORPILLEUR);
-        placerUnBateau(console, new bâteaux.Torpilleur(), "Torpilleur", 2, ShipType.TORPILLEUR);
+        placerUnBateau(console, new PorteAvion(), "PorteAvion", 5, ShipType.PORTE_AVION);
+        placerUnBateau(console, new Croiseur(), "Croiseur", 4, ShipType.CROISEUR);
+        placerUnBateau(console, new ContreTorpilleur(), "ContreTorpilleur", 3, ShipType.CONTRE_TORPILLEUR);
+        placerUnBateau(console, new Torpilleur(), "Torpilleur", 2, ShipType.TORPILLEUR);
 
         System.out.println("\n✓ Tous les bateaux sont placés et envoyés au serveur !");
         System.out.println("\n═══ Ta grille personnelle ═══");
@@ -310,7 +331,10 @@ public class ClientTCP {
         System.out.println("═══════════════════════════════\n");
     }
 
-    private void placerUnBateau(BufferedReader console, bâteaux.Bâteau bateau, String nom, int longueur, ShipType shipType) throws IOException {
+    /**
+     * Cette methode permet de placer un bâteau sur la grille perso du joueur qui est entrain de placer ses bâteaux
+     * */
+    private void placerUnBateau(BufferedReader console, Bâteau bateau, String nom, int longueur, ShipType shipType) throws IOException {
         while (true) {
             System.out.println("\n📍 Placement du " + nom + " (longueur " + longueur + ")");
             System.out.print("Entrer X(vertical) Y(horizontal) orientation (ex: 2 3 H) : ");
@@ -353,13 +377,13 @@ public class ClientTCP {
                 continue;
             }
 
-            // 🔥 INVERSER : le tableau est [colonne][ligne] donc on passe (x, y)
+
             // x = colonne (horizontal), y = ligne (vertical)
             boolean ok = joueur.placerBateau(bateau, x, y, horizontal);
             if (!ok) {
                 System.out.println("❌ Impossible de placer ici (débordement ou chevauchement). Essaie ailleurs.");
             } else {
-                System.out.println("✓ " + nom + " placé en X=" + (x+1) + " Y=" + (y+1) + " " + (horizontal ? "HORIZONTAL" : "VERTICAL"));
+                System.out.println(nom + " placé en X=" + (x+1) + " Y=" + (y+1) + " " + (horizontal ? "HORIZONTAL" : "VERTICAL"));
 
                 PlaceShipRequest placeMsg = new PlaceShipRequest(shipType, x, y, orientation);
                 envoyer(placeMsg);
@@ -373,6 +397,9 @@ public class ClientTCP {
         }
     }
 
+    /**
+     * Cette méthode permet d'afficher la grille de tir du joueur et sa grille personnels la ou il a placer ses bâteaux
+     * */
     private void afficherVueJoueur() {
         System.out.println("\n═══════════════════════════════════════");
         System.out.println("     VUE DU JOUEUR " + joueur.getNom());
@@ -387,6 +414,10 @@ public class ClientTCP {
         System.out.println();
     }
 
+
+    /**
+     * Cette methode permet de femret la connexion entre le client et le serveur
+     * */
     public void close() {
         try { if (in != null) in.close(); } catch (IOException ignored) {}
         if (out != null) out.close();
@@ -409,7 +440,7 @@ public class ClientTCP {
 
             client.connecter(ip, port);
 
-            // 🔥 NOUVEAU : Demander le pseudo
+
             System.out.print("\nEntrez votre pseudo : ");
             String pseudo = console.readLine();
             if (pseudo == null || pseudo.trim().isEmpty()) {
@@ -423,7 +454,7 @@ public class ClientTCP {
 
             // Attendre la confirmation
             Message response = client.recevoir();
-            System.out.println("✓ Bienvenue " + pseudo + " !\n");
+            System.out.println("Bienvenue " + pseudo + " !\n");
 
             // Mettre à jour le joueur avec le bon pseudo
             client.joueur = new Joueur(pseudo, 10);

@@ -8,9 +8,8 @@ public class ServerShotMessage extends Message {
     private final int x;
     private final int y;
     private final ResultatTir resultat;
-    private final String nomBateau; // peut être null
+    private final String nomBateau; // peut être null si il rate
 
-    // 👇 nouveaux champs
     private final boolean gameOver;
     private final String winner; // "CLIENT", "SERVER" ou null
 
@@ -24,6 +23,7 @@ public class ServerShotMessage extends Message {
         this.gameOver = gameOver;
         this.winner = winner;
     }
+    //------------------------------------------------------------------------------
 
     public int getX() { return x; }
     public int getY() { return y; }
@@ -32,6 +32,9 @@ public class ServerShotMessage extends Message {
     public boolean isGameOver() { return gameOver; }
     public String getWinner() { return winner; }
 
+    //-------------------------------------------------------------------------------
+
+    //message renvoyé par la méthode : {type : SERVER_SHOT , x : 10 , y : 5 , resultat : MISS/SUNK... , nomBateau : PORTE_AVION , gameOver = false , win = serveur }
     @Override
     public String serialize() {
         String nb = (nomBateau == null) ? "null" : ("\"" + nomBateau + "\"");
@@ -46,6 +49,7 @@ public class ServerShotMessage extends Message {
                 "}";
     }
 
+    // Renvoie un objet ServerShotMessage à partir d'une châine de caractéres si elle respecte bien le format vu en haut
     public static ServerShotMessage fromJson(String json) {
         String cleaned = json.replace("{", "")
                 .replace("}", "")

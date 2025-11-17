@@ -24,15 +24,20 @@ public class PlaceShipRequest extends Message {
     public int getY() { return y; }
     public Orientation getOrientation() { return orientation; }
 
+    //---------------------------------------------------------------------------------------------------
+
+    //Format du message retourné :{type : PLACE_SHIP , shipType : PORTEAVION, x : 4 , y : 6 , orientation : HORIZONTAL}
     @Override
     public String serialize() {
-        // JSON simple, cohérent avec le reste
+
         return String.format(
                 "{\"type\":\"PLACE_SHIP\",\"shipType\":\"%s\",\"x\":%d,\"y\":%d,\"orientation\":\"%s\"}",
                 shipType.name(), x, y, orientation.name()
         );
     }
-
+    /**
+     * Cette fonction permet de transformé une châine de carcatére en un objet de type PlaceShipRequest
+     * */
     public static PlaceShipRequest fromJson(String json) {
 
         // Nettoyage comme pour ShotRequest

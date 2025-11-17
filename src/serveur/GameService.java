@@ -3,7 +3,6 @@ package serveur;
 import bâteaux.*;
 import etats.Orientation;
 import etats.ResultatTir;
-import etats.ShipType;
 import grille.Grille;
 import grille.Grille.TirResult;
 import joueur.Joueur;
@@ -14,11 +13,8 @@ import message.PlaceShipRequest;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class GameService {
-
-    // 🔥 SUPPRIMÉ LE SINGLETON - Chaque client aura sa propre instance
 
     private Joueur joueurClient;
     private Joueur joueurServeur;
@@ -30,28 +26,36 @@ public class GameService {
     private String winner;
 
     private final String clientId; // Pour identifier le client dans les logs
-    private String clientUsername = "Joueur"; // 🔥 NOUVEAU : pseudo du client
+    private String clientUsername = "Joueur";
 
-    // 🔥 NOUVEAU : Constructeur public (plus de singleton)
+
     public GameService(String clientId) {
         this.clientId = clientId;
-        // 🔥 NE PAS appeler resetGame() ici, attendre que le pseudo soit défini
+
     }
 
-    // 🔥 NOUVEAU : Méthode pour définir le pseudo
+    //----------------------------------------------------------------------------------
+
+    /**
+     * Cette méthode sert à definir le pseudo du joueur en lui affectant la chaîne passé en paramétre qui est le pseudo
+     * */
     public synchronized void setClientUsername(String username) {
         this.clientUsername = username;
         System.out.println("👤 [" + clientId + "] Pseudo défini : " + username);
-        // 🔥 Initialiser la partie APRÈS avoir défini le pseudo
+        // Initialiser la partie APRÈS avoir défini le pseudo
         resetGame();
     }
 
+
+    /**
+     * Cette methode sert à initialisé une partie elle est en synchronized car le serveur initialise une partie à la fois
+     * */
     public synchronized void resetGame() {
         System.out.println("🔄 [" + clientUsername + "] Réinitialisation de la partie...");
         gameOver = false;
         winner = null;
 
-        // 🔥 MODIFIÉ : Utiliser le pseudo du client
+        //on utilise le pseudo du joueur
         joueurClient = new Joueur(clientUsername, taille);
         joueurServeur = new Joueur("Serveur", taille);
 
@@ -64,8 +68,11 @@ public class GameService {
         joueurServeur.getGrillePerso().afficher();
     }
 
+    /**
+     * Cette methode sert à placer les bâteaux du client coté serveur comme ca il sait ou le client à placer ses bâteau
+     * */
     public synchronized boolean placeClientShip(PlaceShipRequest req) {
-        // 🔥 Si la partie n'est pas initialisée, le faire maintenant
+        // Si la partie n'est pas initialisée
         if (joueurClient == null || joueurServeur == null) {
             System.out.println("⚠️ [" + clientUsername + "] Partie non initialisée, initialisation...");
             resetGame();
@@ -93,9 +100,13 @@ public class GameService {
         return ok;
     }
 
+
+    /**
+     * Cette mééthode sert à traiter le tire recu
+     * */
     public synchronized RoundResult processShot(ShotRequest req) {
 
-        // 🔥 Si la partie n'est pas initialisée, le faire maintenant
+        // Si la partie n'est pas initialisée
         if (joueurClient == null || joueurServeur == null) {
             System.out.println("⚠️ [" + clientUsername + "] Partie non initialisée, initialisation...");
             resetGame();
@@ -158,6 +169,9 @@ public class GameService {
         return new RoundResult(clientRes, serverShots);
     }
 
+    /**
+     * Cette permet au serveur de tirer encore tant qu'il a touché un bâteau et retourner la liste des resultat de chaque tir
+     * */
     private List<ServerShotMessage> effectuerTirsServeurConsecutifs() {
         List<ServerShotMessage> shots = new ArrayList<>();
         Grille grilleClient = joueurClient.getGrillePerso();
@@ -210,6 +224,9 @@ public class GameService {
         }
     }
 
+    /**
+     * Cette méthode permet de placer les bâteau du serveur de maniere aléatroire dans des endroit valides
+     * */
     private void placerAleatoire(Joueur joueur, Bâteau bateau) {
         while (true) {
             boolean horizontal = random.nextBoolean();
@@ -230,6 +247,10 @@ public class GameService {
         }
     }
 
+    /**
+     * Cette classe encapsule le réponse au tir du client et le resultat de tout les tirs consécutifs du serveur
+     * comme ca le client peut mettre à jour sa grille de tir et sa grille perso aprés les tirs
+     * */
     public static class RoundResult {
         private final ShotResponse clientResponse;
         private final List<ServerShotMessage> serverShots;
