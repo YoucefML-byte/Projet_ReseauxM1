@@ -299,10 +299,10 @@ public class ClientTCP {
         System.out.println("Les coordonnées vont de 1 à 10 (grille 10x10).");
         System.out.println("═══════════════════════════════════════════\n");
 
-        placerUnBateau(console, new bâteaux.PorteAvion(0, 0), "PorteAvion", 5, ShipType.PORTE_AVION);
-        placerUnBateau(console, new bâteaux.Croiseur(0, 0), "Croiseur", 4, ShipType.CROISEUR);
-        placerUnBateau(console, new bâteaux.ContreTorpilleur(0, 0), "ContreTorpilleur", 3, ShipType.CONTRE_TORPILLEUR);
-        placerUnBateau(console, new bâteaux.Torpilleur(0, 0), "Torpilleur", 2, ShipType.TORPILLEUR);
+        placerUnBateau(console, new bâteaux.PorteAvion(), "PorteAvion", 5, ShipType.PORTE_AVION);
+        placerUnBateau(console, new bâteaux.Croiseur(), "Croiseur", 4, ShipType.CROISEUR);
+        placerUnBateau(console, new bâteaux.ContreTorpilleur(), "ContreTorpilleur", 3, ShipType.CONTRE_TORPILLEUR);
+        placerUnBateau(console, new bâteaux.Torpilleur(), "Torpilleur", 2, ShipType.TORPILLEUR);
 
         System.out.println("\n✓ Tous les bateaux sont placés et envoyés au serveur !");
         System.out.println("\n═══ Ta grille personnelle ═══");

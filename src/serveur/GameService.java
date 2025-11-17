@@ -55,10 +55,10 @@ public class GameService {
         joueurClient = new Joueur(clientUsername, taille);
         joueurServeur = new Joueur("Serveur", taille);
 
-        placerAleatoire(joueurServeur, new PorteAvion(0, 4));
-        placerAleatoire(joueurServeur, new Croiseur(0, 3));
-        placerAleatoire(joueurServeur, new ContreTorpilleur(0, 2));
-        placerAleatoire(joueurServeur, new Torpilleur(0, 1));
+        placerAleatoire(joueurServeur, new PorteAvion());
+        placerAleatoire(joueurServeur, new Croiseur());
+        placerAleatoire(joueurServeur, new ContreTorpilleur());
+        placerAleatoire(joueurServeur, new Torpilleur());
 
         System.out.println("⚓ [" + clientUsername + "] Nouvelle grille du SERVEUR :");
         joueurServeur.getGrillePerso().afficher();
@@ -72,10 +72,10 @@ public class GameService {
         }
 
         Bâteau b = switch (req.getShipType()) {
-            case PORTE_AVION       -> new PorteAvion(0, 4);
-            case CROISEUR          -> new Croiseur(0, 3);
-            case CONTRE_TORPILLEUR -> new ContreTorpilleur(0, 2);
-            case TORPILLEUR        -> new Torpilleur(0, 1);
+            case PORTE_AVION       -> new PorteAvion();
+            case CROISEUR          -> new Croiseur();
+            case CONTRE_TORPILLEUR -> new ContreTorpilleur();
+            case TORPILLEUR        -> new Torpilleur();
         };
 
         boolean horizontal = (req.getOrientation() == Orientation.HORIZONTAL);

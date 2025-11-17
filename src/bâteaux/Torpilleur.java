@@ -1,7 +1,7 @@
 package bâteaux;
 
 public class Torpilleur extends Bâteau {
-    public Torpilleur(int CordoonéeDépart, int CoordonnéDeFin) {
-        super("Torpilleur", CordoonéeDépart, CoordonnéDeFin, 2);
+    public Torpilleur() {
+        super("Torpilleur", 2);
     }
 }
