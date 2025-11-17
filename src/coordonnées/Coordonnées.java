@@ -1,5 +1,7 @@
 package coordonnées;
 
+
+/// cette classe sert à representer des coordonnées x et y sur la grille pour faciliter la manipulation
 public class Coordonnées {
 
     private int x;

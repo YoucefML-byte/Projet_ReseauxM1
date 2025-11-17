@@ -58,9 +58,10 @@ public class Bâteau {
     public void setPointsRestants(int pointsRestants){
         this.pointsRestants = pointsRestants;
     }
-
+    //on décremente les nb de pts de vies ssi il en reste encore
     public void toucher() { if (pointsRestants > 0) pointsRestants--; }
 
+    //si il na plus de pts de vies ca veut dire il a coulé
     public boolean estCoule() {
         return pointsRestants <= 0;
     }

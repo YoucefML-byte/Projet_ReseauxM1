@@ -10,7 +10,7 @@ import java.util.List;
 public class Joueur {
 
     private final String nom;
-    private final Grille grillePerso;    // où sont SES bateaux
+    private final Grille grillePerso;    // où sont ses bateaux
     private final Grille grilleTirs;     // ce qu'il sait de l'adversaire
     private final List<Bâteau> bateaux;  // ses bateaux
 
@@ -38,8 +38,7 @@ public class Joueur {
     }
 
     /**
-     * Le joueur veut placer un bateau :
-     * il INDique où, mais c'est la grille qui fait le travail.
+     * cette fonction permet au joueur de placer un bâteau sur sa grille
      */
     public boolean placerBateau(Bâteau bateau, int x, int y, boolean horizontal) {
         boolean ok = grillePerso.placerBateau(bateau, x, y, horizontal);
@@ -50,30 +49,29 @@ public class Joueur {
     }
 
     /**
-     * Le joueur SUBIT un tir de l'adversaire sur sa grille perso.
-     * On retourne le résultat du tir (TOUCHE / RATE / COULE).
+     * Cette fonction permet au joueur de recevoir un tir de l'adversaire pour pouvoir mettre à jours sa grille personnels
+     * la ou y a ses bâteaux à jours
      */
     public ResultatTir recevoirTir(int x, int y) {
-        return grillePerso.tirerSurMoi(x, y); // à implémenter côté Grille
+        return grillePerso.tirerSurMoi(x, y);
     }
 
     /**
-     * Le joueur TIRE sur l'adversaire.
-     * On enregistre le résultat sur sa grille de tirs.
+     * cette fonction sert à enregistrer les tirs effectué par le joueur
+     * pour savoir àaprés si il a déja tiré sur cette case ou non
      */
     public void enregistrerResultatTir(int x, int y, ResultatTir resultat) {
-        grilleTirs.marquerResultatTir(x, y, resultat); // idem, méthode côté Grille
+        grilleTirs.marquerResultatTir(x, y, resultat);
     }
 
-    /**
-     * Savoir si le joueur a perdu (tous ses bateaux sont coulés).
-     */
+    // cette fonction sert à indiquer si le joueur à perdu ou non
     public boolean aPerdu() {
         if (bateaux.isEmpty()) {
             // Aucun bateau enregistré → on considère qu'il n'a pas encore perdu
             return false;
         }
         for (Bâteau b : bateaux) {
+            //si y a un bâteau qui n a pas encore coulé ca veut il n a pas perdu encore
             if (!b.estCoule()) {
                 return false;
             }
@@ -81,6 +79,10 @@ public class Joueur {
         return true;
     }
 
+    /**
+    * cette fonction permet d'afficher la grille ou le joueur à placer ces bâteaux
+    * et aussi la grille ou il doit tirer
+    * */
     public void afficherGrilles() {
         System.out.println("Grille de " + nom + " (ses bateaux) :");
         grillePerso.afficher();

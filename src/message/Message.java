@@ -3,11 +3,21 @@ package message;
 import etats.MessegeType;
 
 public abstract class Message {
-    protected MessegeType type;
+    protected MessegeType type; // le type du message SHOT_REQUEST, SHOT_RESPONSE, PLACE_SHIP....
+
     public MessegeType getType() { return type; }
 
+    /**
+     *    cette fonction permet de transormer un objet de type Message sous forme d'une châine de caractére
+     *    pour être envoyer au client/servveur
+     */
     public abstract String serialize();
 
+    /**
+     * Cette fonction est appelé à chaque reception d'un message par le client/serveur
+     * qui est sous forme de châine de caractére pour être tranformer sous forme d'un objet de type Message
+     * pour faciliter le traitement/extraction des informations du message par le client/serveur
+     * */
     public static Message deserialize(String raw) {
         String s = raw.trim();
 
@@ -21,7 +31,7 @@ public abstract class Message {
             return ServerShotMessage.fromJson(s);
         } else if (s.contains("\"type\":\"NEW_GAME\"")) {
             return NewGameRequest.fromJson(s);
-        } else if (s.contains("\"type\":\"SET_USERNAME\"")) {  // 🔥 NOUVEAU
+        } else if (s.contains("\"type\":\"SET_USERNAME\"")) {
             return SetUsernameRequest.fromJson(s);
         } else {
             throw new IllegalArgumentException("Type de message inconnu : " + s);

@@ -65,6 +65,12 @@ public class GameService {
     }
 
     public synchronized boolean placeClientShip(PlaceShipRequest req) {
+        // 🔥 Si la partie n'est pas initialisée, le faire maintenant
+        if (joueurClient == null || joueurServeur == null) {
+            System.out.println("⚠️ [" + clientUsername + "] Partie non initialisée, initialisation...");
+            resetGame();
+        }
+
         Bâteau b = switch (req.getShipType()) {
             case PORTE_AVION       -> new PorteAvion(0, 4);
             case CROISEUR          -> new Croiseur(0, 3);
@@ -76,7 +82,7 @@ public class GameService {
         boolean ok = joueurClient.placerBateau(b, req.getX(), req.getY(), horizontal);
 
         System.out.println("[" + clientUsername + "] Placement bateau (" + req.getShipType()
-                + ") en (" + req.getX() + "," + req.getY() + ") "
+                + ") en X=" + (req.getX()+1) + " Y=" + (req.getY()+1) + " "
                 + (horizontal ? "H" : "V") + " -> " + (ok ? "OK" : "ECHEC"));
 
         if (ok) {
@@ -106,7 +112,7 @@ public class GameService {
         int x = req.getX();
         int y = req.getY();
 
-        System.out.println("🎯 [" + clientUsername + "] Tir de " + clientUsername + " en (" + x + "," + y + ")");
+        System.out.println("🎯 [" + clientUsername + "] Tir de " + clientUsername + " en X=" + (x+1) + " Y=" + (y+1));
 
         // 1) Tir du client sur le serveur
         Grille grilleServ = joueurServeur.getGrillePerso();
@@ -217,7 +223,7 @@ public class GameService {
 
             boolean ok = joueur.placerBateau(bateau, x, y, horizontal);
             if (ok) {
-                System.out.println("[" + clientUsername + "] " + bateau.getNom() + " placé en (" + x + "," + y + ") "
+                System.out.println("[" + clientUsername + "] " + bateau.getNom() + " placé en X=" + (x+1) + " Y=" + (y+1) + " "
                         + (horizontal ? "HORIZONTAL" : "VERTICAL"));
                 break;
             }
