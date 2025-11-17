@@ -33,8 +33,10 @@ public abstract class Message {
             return NewGameRequest.fromJson(s);
         } else if (s.contains("\"type\":\"SET_USERNAME\"")) {
             return SetUsernameRequest.fromJson(s);
+        } else if (s.contains("\"type\":\"GAME_MODE\"")) {
+            return GameModeRequest.fromJson(s);
         } else {
             throw new IllegalArgumentException("Type de message inconnu : " + s);
-        }
+    }
     }
 }

@@ -6,5 +6,7 @@ public enum MessegeType {
     PLACE_SHIP,
     SERVER_SHOT,
     NEW_GAME,
-    SET_USERNAME
+    SET_USERNAME,
+    GAME_MODE,
+    ERROR
 }
