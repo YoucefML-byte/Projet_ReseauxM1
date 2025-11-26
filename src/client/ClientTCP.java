@@ -925,7 +925,7 @@ public class ClientTCP {
         if (isPvPMode) {
             // ===== MODE PVP =====
             System.out.println("\n⏳ En attente que " + opponentName + " termine son placement...");
-
+            //1
             // 🔥 Timeout de 15 secondes pour éviter l'attente infinie
             long timeout = 15000;
             long startTime = System.currentTimeMillis();
