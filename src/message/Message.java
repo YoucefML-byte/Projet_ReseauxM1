@@ -35,8 +35,18 @@ public abstract class Message {
             return SetUsernameRequest.fromJson(s);
         } else if (s.contains("\"type\":\"GAME_MODE\"")) {
             return GameModeRequest.fromJson(s);
-        } else {
+        } else if (s.contains("\"type\":\"MATCHMAKING\"")) {
+            return MatchmakingResponse.fromJson(s);
+        } else if (s.contains("\"type\":\"OPPONENT_SHOT\"")) {
+            return OpponentShotMessage.fromJson(s);
+        } else if (s.contains("\"type\":\"GAME_START\"")) {
+            return GameStartMessage.fromJson(s);
+        }else if (s.contains("\"type\":\"OPPONENT_LEFT\"")) {
+            return OpponentLeftMessage.fromJson(s);
+        }else if (s.contains("\"type\":\"REMATCH_RESPONSE\"")) {
+            return RematchResponse.fromJson(s);
+        }else {
             throw new IllegalArgumentException("Type de message inconnu : " + s);
-    }
+        }
     }
 }

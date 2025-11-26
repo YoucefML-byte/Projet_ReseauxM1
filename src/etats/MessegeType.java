@@ -8,5 +8,11 @@ public enum MessegeType {
     NEW_GAME,
     SET_USERNAME,
     GAME_MODE,
+    MATCHMAKING,
+    OPPONENT_SHOT,
+    GAME_START,
+    OPPONENT_LEFT,
+    REMATCH_RESPONSE,
+    INFO,
     ERROR
 }

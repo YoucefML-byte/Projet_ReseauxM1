@@ -3,8 +3,7 @@ package message;
 import etats.MessegeType;
 
 public class GameModeRequest extends Message {
-
-    private final String mode; // "BOT" ou "PLAYER"
+    private final String mode; // "BOT" ou "PVP"
 
     public GameModeRequest(String mode) {
         this.type = MessegeType.GAME_MODE;
@@ -15,18 +14,11 @@ public class GameModeRequest extends Message {
         return mode;
     }
 
-    //----------------------------------------------------------------------------
-
-    //Format du message {type : GAME_MODE , mode : BOT/PVP}
     @Override
     public String serialize() {
         return "{\"type\":\"GAME_MODE\",\"mode\":\"" + mode + "\"}";
     }
 
-    /**
-     * Cette fonction recoit une chaîne de caractre qui respecte le format precedent et le transforme en un objet GameModeRequest
-     * pour le traitment du mode de jeu choisit par le joueur
-     */
     public static GameModeRequest fromJson(String json) {
         String cleaned = json.replace("{", "")
                 .replace("}", "")
