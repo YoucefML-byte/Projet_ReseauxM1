@@ -485,7 +485,7 @@ public class ClientTCP {
     private boolean gererRematchPvP(BufferedReader console) throws IOException {
         System.out.println("\n🔄 Demande de rematch...");
         envoyer(new NewGameRequest());
-        System.out.println("⏳ En attente de la réponse (30s max)");
+        System.out.println("⏳ Enn attente de la réponse (30s max)");
 
         long timeout = 45000, startTime = System.currentTimeMillis();
 
