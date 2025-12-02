@@ -195,7 +195,11 @@ public class ClientTCP {
         ResultatTir resultat = res.getResultat();
         System.out.println("Ton tir en (" + (x+1) + "," + (y+1) + ") : " + resultat
                 + (res.getNomBateau() != null ? " sur " + res.getNomBateau() : ""));
-        joueur.enregistrerResultatTir(x, y, resultat);
+
+        // 🔥 CORRECTION : Ne pas enregistrer ALREADY_TRIED (ça écrase le vrai résultat)
+        if (resultat != ResultatTir.ALREADY_TRIED && resultat != ResultatTir.OUT_OF_BOUNDS) {
+            joueur.enregistrerResultatTir(x, y, resultat);
+        }
 
         if (res.isGameOver()) {
             handleGameOver(res.getWinner());
@@ -238,13 +242,23 @@ public class ClientTCP {
         ResultatTir resultat = res.getResultat();
         System.out.println("Ton tir en (" + (x + 1) + "," + (y + 1) + ") : " + resultat
                 + (res.getNomBateau() != null ? " sur " + res.getNomBateau() : ""));
-        joueur.enregistrerResultatTir(x, y, resultat);
+
+        // 🔥 CORRECTION : Ne pas enregistrer ALREADY_TRIED (ça écrase le vrai résultat)
+        if (resultat != ResultatTir.ALREADY_TRIED && resultat != ResultatTir.OUT_OF_BOUNDS) {
+            joueur.enregistrerResultatTir(x, y, resultat);
+        }
 
         // 🔥 CORRECTION : Vérifier IMMÉDIATEMENT si le joueur a gagné
         if (res.isGameOver()) {
             afficherFinPartie(true);
             proposerRejouer(console);
             return null; // Partie terminée
+        }
+
+        // 🔥 CORRECTION : Si tir invalide, le joueur rejoue
+        if (resultat == ResultatTir.ALREADY_TRIED || resultat == ResultatTir.OUT_OF_BOUNDS) {
+            System.out.println("⚠️ Tir invalide, réessayez.");
+            return true;
         }
 
         boolean rejoue = (resultat == ResultatTir.HIT || resultat == ResultatTir.SUNK);
