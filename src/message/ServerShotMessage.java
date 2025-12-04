@@ -5,14 +5,16 @@ import etats.ResultatTir;
 
 public class ServerShotMessage extends Message {
 
+    //les coordonées du tir du serveur
     private final int x;
     private final int y;
-    private final ResultatTir resultat;
+    private final ResultatTir resultat;//resultat du tir du serveur
     private final String nomBateau; // peut être null si il rate
 
-    private final boolean gameOver;
-    private final String winner; // "CLIENT", "SERVER" ou null
+    private final boolean gameOver;//indiquer si il a perdue ou pas
+    private final String winner; // soit le joeur (CLIENT) ou le serveur (SERVEUR)
 
+    //le constructeur
     public ServerShotMessage(int x, int y, ResultatTir resultat, String nomBateau,
                              boolean gameOver, String winner) {
         this.type = MessegeType.SERVER_SHOT;
@@ -34,7 +36,7 @@ public class ServerShotMessage extends Message {
 
     //-------------------------------------------------------------------------------
 
-    //message renvoyé par la méthode : {type : SERVER_SHOT , x : 10 , y : 5 , resultat : MISS/SUNK... , nomBateau : PORTE_AVION , gameOver = false , win = serveur }
+    //message renvoyé par la méthode : {type : SERVER_SHOT , x : 10 , y : 5 , resultat : MISS/SUNK... , nomBateau : PORTE_AVION/null..., gameOver : false/true , win = SERVEUR ou null car c'est un tir il peut pas savoir que le client à gagner il lui faut le shotrequest pour qu'il compare et vois si le client à gagner oou pas aprés il lui envoie un shotresponse lui indiquant si il a gagner ou pas  }
     @Override
     public String serialize() {
         String nb = (nomBateau == null) ? "null" : ("\"" + nomBateau + "\"");
@@ -51,6 +53,7 @@ public class ServerShotMessage extends Message {
 
     // Renvoie un objet ServerShotMessage à partir d'une châine de caractéres si elle respecte bien le format vu en haut
     public static ServerShotMessage fromJson(String json) {
+        // On enlève les { } et "
         String cleaned = json.replace("{", "")
                 .replace("}", "")
                 .replace("\"", "");
@@ -68,7 +71,7 @@ public class ServerShotMessage extends Message {
             if (kv.length != 2) continue;
             String key = kv[0].trim();
             String value = kv[1].trim();
-
+            //extraction de la bonne information
             switch (key) {
                 case "x" -> x = Integer.parseInt(value);
                 case "y" -> y = Integer.parseInt(value);

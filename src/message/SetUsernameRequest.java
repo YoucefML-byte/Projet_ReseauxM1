@@ -6,6 +6,7 @@ public class SetUsernameRequest extends Message {
 
     private final String username; // le pseudo
 
+    //pour changer le pseudo
     public SetUsernameRequest(String username) {
         this.type = MessegeType.SET_USERNAME;
         this.username = username;
@@ -26,6 +27,7 @@ public class SetUsernameRequest extends Message {
 
     // Renvoie un objet SetUsernameRequest à partir d'une châine de caractéres si elle respecte bien le format vu en haut
     public static SetUsernameRequest fromJson(String json) {
+        // On enlève les { } et "
         String cleaned = json.replace("{", "")
                 .replace("}", "")
                 .replace("\"", "");
@@ -47,4 +49,4 @@ public class SetUsernameRequest extends Message {
 
         return new SetUsernameRequest(username);
     }
-}
+}//

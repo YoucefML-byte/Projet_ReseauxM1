@@ -18,7 +18,7 @@ public class NewGameRequest extends Message {
      * Cette fonction recoit une chaîne de caractre qui respecte le format precedent et le transforme en un objet NewGameRequest
      */
     public static NewGameRequest fromJson(String json) {
-        // pas de champs à parser, on s'en fiche du contenu
+        // pas de champs à parser car on veut juste lancer une nouvelle partie donc pas d'information necessaire
         return new NewGameRequest();
     }
 }

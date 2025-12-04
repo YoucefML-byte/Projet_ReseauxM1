@@ -8,17 +8,17 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
 public class ClientHandler implements Runnable {
-    private final Socket socket;
-    private final String clientId;
+    private final Socket socket;//socket de communication
+    private final String clientId;//identifiant du client
 
-    private GameService botGame;
-    private PvPGameService pvpGame;
+    private GameService botGame; //dans le cas ou il choisie de jouer contre le serveur
+    private PvPGameService pvpGame; //dans le cas ou il choisie de jouer contre un autre jouer
     private boolean isPvPMode = false;
-    private boolean isPlayer1InPvP;
-    private ClientHandler opponentHandler;
+    private boolean isPlayer1InPvP;//pour gerer les tours
+    private ClientHandler opponentHandler; //pour communiquer avec l'ennemi
 
     private String username = "Joueur";
-    private PrintWriter out;
+    private PrintWriter out;//flux de sortie
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
@@ -28,6 +28,9 @@ public class ClientHandler implements Runnable {
     public PrintWriter getOut() { return out; }
     public String getUsername() { return username; }
 
+    /**
+     * Cette fonction permet de creer la partie
+     * */
     public void setPvPGame(PvPGameService game, boolean isPlayer1, ClientHandler opponent) {
         this.pvpGame = game;
         this.isPvPMode = true;
@@ -37,12 +40,13 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
+        //lancemment du thread pour le client
         Thread.currentThread().setName("Client-" + clientId);
         System.out.println("🎮 [" + clientId + "] Nouvelle connexion");
 
         try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8))) {
             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
-
+            //reception des messages
             String raw;
             while ((raw = in.readLine()) != null) {
                 String line = raw.trim();
@@ -67,6 +71,9 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Cette fonction permet de traiter les message recus
+     * */
     private void traiterMessage(Message msg) {
         switch (msg) {
             case SetUsernameRequest r -> {
@@ -82,6 +89,9 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Cette fonction permet de gerer les requête de choix de mode
+     * */
     private void handleGameModeRequest(GameModeRequest req) {
         System.out.println("🎮 [" + username + "] Mode : " + req.getMode());
 
@@ -103,6 +113,9 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Cette fonction permet de gerer les requête de placememnt des bâteaux
+     * */
     private void handlePlaceShipRequest(PlaceShipRequest ps) {
         boolean ok = false;
 
@@ -122,7 +135,9 @@ public class ClientHandler implements Runnable {
             out.println("{\"type\":\"PLACE_SHIP_RESPONSE\",\"ok\":false}");
         }
     }
-
+    /**
+     * Cette fonction permet d'envoyer un message de démarrage de partie (GameStartMessage) aux deux joueurs d’un match PvP
+     * */
     private void envoyerGameStart() {
         String p1Name = pvpGame.getJoueur1Name();
         String p2Name = pvpGame.getJoueur2Name();
@@ -140,6 +155,10 @@ public class ClientHandler implements Runnable {
         }
     }
 
+
+    /**
+     * Cette fonction permet de gerer les requête de tirs
+     * */
     private void handleShotRequest(ShotRequest req) {
         if (isPvPMode && pvpGame != null) {
             PvPGameService.PvPRoundResult result = pvpGame.processShot(req, isPlayer1InPvP);
@@ -154,7 +173,9 @@ public class ClientHandler implements Runnable {
             round.getServerShots().forEach(shot -> out.println(shot.serialize()));
         }
     }
-
+    /**
+     * Cette fonction permet de gerer les requête de nouvelle partie
+     * */
     private void handleNewGameRequest() {
         System.out.println("🔨 [" + username + "] NEW_GAME");
 
@@ -175,7 +196,9 @@ public class ClientHandler implements Runnable {
             out.println("{\"type\":\"NEW_GAME_RESPONSE\",\"ok\":true}");
         }
     }
-
+    /**
+     * Cette fonction permet d'enlever le jouer qui s'est déconnecter des de la liste des joueurs qui sont entraint de jouer '
+     * */
     private void cleanup() {
         System.out.println("🧹 [" + username + "] Nettoyage...");
 

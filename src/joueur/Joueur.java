@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Joueur {
 
-    private final String nom;
+    private final String nom;              //le nom du joueur
     private final Grille grillePerso;    // où sont ses bateaux
     private final Grille grilleTirs;     // ce qu'il sait de l'adversaire
     private final List<Bâteau> bateaux;  // ses bateaux
@@ -64,7 +64,9 @@ public class Joueur {
         grilleTirs.marquerResultatTir(x, y, resultat);
     }
 
-    // cette fonction sert à indiquer si le joueur à perdu ou non
+    /**
+     * cette fonction sert à indiquer si le joueur à perdu ou non
+     * */
     public boolean aPerdu() {
         if (bateaux.isEmpty()) {
             // Aucun bateau enregistré → on considère qu'il n'a pas encore perdu

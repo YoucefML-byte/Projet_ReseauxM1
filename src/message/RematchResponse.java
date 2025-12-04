@@ -23,17 +23,19 @@ public class RematchResponse extends Message {
         return message;
     }
 
+    //message renvoyé par la méthode : {type : RematchResponse , status : WAITING/ACCEPTED , message : Demande de rematch accepté/...}
     @Override
     public String serialize() {
         String msg = (message == null) ? "null" : ("\"" + message + "\"");
         return "{\"type\":\"REMATCH_RESPONSE\",\"status\":\"" + status + "\",\"message\":" + msg + "}";
     }
-
+    //Renvoie un objet RematchResponse à partir d'une châine de caractéres si elle respecte bien le format vu en haut
     public static RematchResponse fromJson(String json) {
+        // On enlève les { } et "
         String cleaned = json.replace("{", "")
                 .replace("}", "")
                 .replace("\"", "");
-
+        // type : RematchResponse , status : WAITING/ACCEPTED , message : Demande de rematch accepté
         String[] fields = cleaned.split(",");
         String status = "WAITING";
         String message = null;
@@ -44,6 +46,7 @@ public class RematchResponse extends Message {
             String key = kv[0].trim();
             String value = kv[1].trim();
 
+            //extraction de la bonne information
             switch (key) {
                 case "status" -> status = value;
                 case "message" -> {

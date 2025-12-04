@@ -5,11 +5,13 @@ import etats.MessegeType;
 public abstract class Message {
     protected MessegeType type; // le type du message SHOT_REQUEST, SHOT_RESPONSE, PLACE_SHIP....
 
-    public MessegeType getType() { return type; }
+    public MessegeType getType() {
+        return type;
+    }
 
     /**
-     *    cette fonction permet de transormer un objet de type Message sous forme d'une châine de caractére
-     *    pour être envoyer au client/servveur
+     * cette fonction permet de transormer un objet de type Message sous forme d'une châine de caractére
+     * pour être envoyer au client/servveur
      */
     public abstract String serialize();
 
@@ -17,7 +19,8 @@ public abstract class Message {
      * Cette fonction est appelé à chaque reception d'un message par le client/serveur
      * qui est sous forme de châine de caractére pour être tranformer sous forme d'un objet de type Message
      * pour faciliter le traitement/extraction des informations du message par le client/serveur
-     * */
+     *
+     */
     public static Message deserialize(String raw) {
         String s = raw.trim();
 
@@ -41,12 +44,12 @@ public abstract class Message {
             return OpponentShotMessage.fromJson(s);
         } else if (s.contains("\"type\":\"GAME_START\"")) {
             return GameStartMessage.fromJson(s);
-        }else if (s.contains("\"type\":\"OPPONENT_LEFT\"")) {
+        } else if (s.contains("\"type\":\"OPPONENT_LEFT\"")) {
             return OpponentLeftMessage.fromJson(s);
-        }else if (s.contains("\"type\":\"REMATCH_RESPONSE\"")) {
+        } else if (s.contains("\"type\":\"REMATCH_RESPONSE\"")) {
             return RematchResponse.fromJson(s);
-        }else {
+        } else {
             throw new IllegalArgumentException("Type de message inconnu : " + s);
         }
     }
-}
+}//

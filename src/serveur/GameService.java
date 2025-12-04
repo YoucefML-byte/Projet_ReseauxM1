@@ -13,22 +13,25 @@ import java.util.List;
 import java.util.Random;
 
 public class GameService {
-    private Joueur joueurClient;
-    private Joueur joueurServeur;
+    private Joueur joueurClient;//le client
+    private Joueur joueurServeur;//le serveur
 
-    private final int taille = 10;
+    private final int taille = 10;//pour la grille
     private final Random random = new Random();
 
     private boolean gameOver;
     private String winner;
 
-    private final String clientUsername;
+    private final String clientUsername;//pseudo
 
     public GameService(String username) {
         this.clientUsername = username;
         resetGame();
     }
 
+    /**
+     * Cette fonction permet de gerer la reinitialisation de la partie
+     * */
     public synchronized void resetGame() {
         System.out.println("🔄 [" + clientUsername + "] Réinitialisation de la partie...");
         gameOver = false;
@@ -43,12 +46,15 @@ public class GameService {
         placerAleatoire(joueurServeur, new ContreTorpilleur());
         placerAleatoire(joueurServeur, new Torpilleur());
 
-        // 🔥 AFFICHER LA GRILLE DU SERVEUR (visible uniquement dans la console serveur)
+
         System.out.println("\n⚓ [" + clientUsername + "] Grille du SERVEUR :");
         joueurServeur.getGrillePerso().afficher();
         System.out.println();
     }
 
+    /**
+     * Cette fonction permet placer les bâteaux du client
+     * */
     public synchronized boolean placeClientShip(PlaceShipRequest req) {
         Bâteau b = creerBateau(req.getShipType());
         boolean horizontal = (req.getOrientation() == Orientation.HORIZONTAL);
@@ -60,7 +66,9 @@ public class GameService {
         }
         return ok;
     }
-
+    /**
+     * Cette fonction permet de traiter les tirs (du joueur et du serveur)
+     * */
     public synchronized RoundResult processShot(ShotRequest req) {
         if (gameOver) {
             return creerRoundResultGameOver();
@@ -69,19 +77,19 @@ public class GameService {
         int x = req.getX();
         int y = req.getY();
 
-        // 1) Tir du client sur le serveur
+        //  Tir du client sur le serveur
         TirResult trClient = joueurServeur.getGrillePerso().tirer(x, y);
         ResultatTir resultat = trClient.getResultat();
         String nomBateau = (trClient.getBateau() != null) ? trClient.getBateau().getNom() : null;
 
         joueurClient.getGrilleTirs().marquerResultatTir(x, y, resultat);
 
-        // 2) Vérifier victoire immédiate
+        //  Vérifier immediatemment di y a victoire
         if (joueurServeur.aPerdu()) {
             return gererVictoireClient(resultat, nomBateau);
         }
 
-        // 3) Client touché = il rejoue
+        //si le client touche, il rejoue
         if (resultat == ResultatTir.HIT || resultat == ResultatTir.SUNK) {
             return new RoundResult(
                     new ShotResponse(resultat, nomBateau),
@@ -96,6 +104,9 @@ public class GameService {
         );
     }
 
+    /**
+     * Cette fonction permet au serveur d'effectuer plusieurs dans le cas ou il touche un bâteau du joueur
+     * */
     private List<ServerShotMessage> effectuerTirsServeurConsecutifs() {
         List<ServerShotMessage> shots = new ArrayList<>();
         Grille grilleClient = joueurClient.getGrillePerso();
@@ -120,7 +131,7 @@ public class GameService {
             String nomBateau = (tr.getBateau() != null) ? tr.getBateau().getNom() : null;
             joueurServeur.getGrilleTirs().marquerResultatTir(x, y, res);
 
-            // Vérifier défaite du client
+            // Vérifier si le client à perdu
             if (joueurClient.aPerdu()) {
                 gameOver = true;
                 winner = "SERVER";
@@ -131,13 +142,16 @@ public class GameService {
 
             shots.add(new ServerShotMessage(x, y, res, nomBateau, false, null));
 
-            // Serveur raté = fin de son tour
+            // si le serveur rate son tir alors il arrête le tir
             if (res == ResultatTir.MISS) {
                 return shots;
             }
         }
     }
 
+    /**
+     * Cette fonction permet de placer les bâteau du serveur
+     * */
     private void placerAleatoire(Joueur joueur, Bâteau bateau) {
         while (true) {
             boolean horizontal = random.nextBoolean();
@@ -152,7 +166,9 @@ public class GameService {
             }
         }
     }
-
+    /**
+     * Cette fonction permet de verifier et le gerer le cas ou le client gagne la partie
+     * */
     private RoundResult gererVictoireClient(ResultatTir resultat, String nomBateau) {
         gameOver = true;
         winner = clientUsername;
@@ -170,7 +186,9 @@ public class GameService {
                 List.of(new ServerShotMessage(-1, -1, ResultatTir.MISS, null, true, winner))
         );
     }
-
+    /**
+     * Cette fonction de creer les bâteaux pour les placer
+     * */
     private Bâteau creerBateau(etats.ShipType type) {
         return switch (type) {
             case PORTE_AVION -> new PorteAvion();
@@ -179,7 +197,9 @@ public class GameService {
             case TORPILLEUR -> new Torpilleur();
         };
     }
-
+    /**
+     * Cette classe permet de sotcker les resultats des tirs des du client et du serveur
+     * */
     public static class RoundResult {
         private final ShotResponse clientResponse;
         private final List<ServerShotMessage> serverShots;

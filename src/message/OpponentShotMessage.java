@@ -2,15 +2,17 @@ package message;
 
 import etats.MessegeType;
 import etats.ResultatTir;
-
+//tir de l'ennemi (un vrai joueur)
 public class OpponentShotMessage extends Message {
+    //coordonnées du tir
     private final int x;
     private final int y;
-    private final ResultatTir resultat;
-    private final String nomBateau;
+
+    private final ResultatTir resultat;//resultat du tir ennemi
+    private final String nomBateau;//nom du bâteau touché
     private final boolean gameOver;
     private final String winner;
-    private final boolean yourTurn; // Indique si c'est au tour du destinataire
+    private final boolean yourTurn; // Indiquequi commence en premier
 
     public OpponentShotMessage(int x, int y, ResultatTir resultat, String nomBateau,
                                boolean gameOver, String winner, boolean yourTurn) {
@@ -32,6 +34,7 @@ public class OpponentShotMessage extends Message {
     public String getWinner() { return winner; }
     public boolean isYourTurn() { return yourTurn; }
 
+    //Format du message retourné :{type : OPPENENT_SHOT_MESSAGE ,  x : 4 , y : 6 , resultat : MISS/..., nomBateau : PorteAvion/..., gameOver : true/false, winner : Alice, yourTurn: true/false }
     @Override
     public String serialize() {
         String nb = (nomBateau == null) ? "null" : ("\"" + nomBateau + "\"");
@@ -46,12 +49,14 @@ public class OpponentShotMessage extends Message {
                 "\"yourTurn\":" + yourTurn +
                 "}";
     }
-
+    //Cette fonction permet de transformé une châine de carcatére en un objet de type OpponentShotMessage
     public static OpponentShotMessage fromJson(String json) {
+
+        // On enlève les { } et "
         String cleaned = json.replace("{", "")
                 .replace("}", "")
                 .replace("\"", "");
-
+        //type : OPPENENT_SHOT_MESSAGE ,  x : 4 , y : 6 , resultat : MISS/..., nomBateau : PorteAvion/..., gameOver : true/false, winner : Alice, yourTurn: true/false
         String[] fields = cleaned.split(",");
         int x = 0, y = 0;
         ResultatTir res = ResultatTir.MISS;
@@ -65,7 +70,7 @@ public class OpponentShotMessage extends Message {
             if (kv.length != 2) continue;
             String key = kv[0].trim();
             String value = kv[1].trim();
-
+            //extraction de la bonne information
             switch (key) {
                 case "x" -> x = Integer.parseInt(value);
                 case "y" -> y = Integer.parseInt(value);

@@ -20,7 +20,7 @@ public class ShotRequest extends Message {
     //Format du message renvoyer par la méthode : { type : SHOT_REQUEST , x : 8 , y : 9 }
     @Override
     public String serialize() {
-        // On garde un JSON simple et toujours dans le même format
+
         return "{\"type\":\"SHOT_REQUEST\",\"x\":" + x + ",\"y\":" + y + "}";
     }
 

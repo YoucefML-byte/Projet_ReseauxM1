@@ -4,10 +4,10 @@ import etats.MessegeType;
 import etats.ResultatTir;
 
 public class ShotResponse extends Message {
-    private final ResultatTir resultat;
+    private final ResultatTir resultat;//resultat du tir
     private final String nomBateau;
-    private final boolean gameOver;  // 🔥 NOUVEAU
-    private final String winner;      // 🔥 NOUVEAU
+    private final boolean gameOver; //pour indiquer si il a perdue ou pas
+    private final String winner; //pout indiquer si il a gagné la partie ou pas
 
     // Constructeur principal avec gameOver et winner
     public ShotResponse(ResultatTir resultat, String nomBateau, boolean gameOver, String winner) {
@@ -18,7 +18,7 @@ public class ShotResponse extends Message {
         this.winner = winner;
     }
 
-    // Constructeur de compatibilité (sans gameOver)
+    // Constructeur sans gameOver
     public ShotResponse(ResultatTir resultat, String nomBateau) {
         this(resultat, nomBateau, false, null);
     }
@@ -30,9 +30,10 @@ public class ShotResponse extends Message {
 
     public ResultatTir getResultat() { return resultat; }
     public String getNomBateau() { return nomBateau; }
-    public boolean isGameOver() { return gameOver; }  // 🔥 NOUVEAU
-    public String getWinner() { return winner; }       // 🔥 NOUVEAU
+    public boolean isGameOver() { return gameOver; }
+    public String getWinner() { return winner; }
 
+    //Format du message renvoyer par la méthode : { type : SHOT_RESPONSE , resultat : HIT,MISS... , nomBateau : PorteAvion, Croiseur ..., gameOver : false, winner : Joueur1}
     @Override
     public String serialize() {
         String nb = (nomBateau == null) ? "null" : ("\"" + nomBateau + "\"");
@@ -43,8 +44,9 @@ public class ShotResponse extends Message {
                 + ",\"gameOver\":" + gameOver
                 + ",\"winner\":" + win + "}";
     }
-
+    // Renvoie un objet ShotResponse à partir d'une châine de caractéres si elle respecte bien le format vu en haut
     public static ShotResponse fromJson(String json) {
+        // On enlève les { } et "
         String cleaned = json.replace("{", "")
                 .replace("}", "")
                 .replace("\"", "");
@@ -62,6 +64,7 @@ public class ShotResponse extends Message {
             String key = kv[0].trim();
             String value = kv[1].trim();
 
+            //extraction des information selon la clé
             switch (key) {
                 case "resultat" -> resStr = value;
                 case "nomBateau" -> {

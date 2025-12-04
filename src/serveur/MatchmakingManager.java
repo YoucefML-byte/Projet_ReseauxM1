@@ -6,9 +6,9 @@ import java.util.concurrent.*;
 public class MatchmakingManager {
     private static MatchmakingManager instance;
 
-    private final Queue<WaitingPlayer> waitingQueue = new ConcurrentLinkedQueue<>();
-    private final Map<String, PvPGameService> activeGames = new ConcurrentHashMap<>();
-    private final Map<String, String> playerToGame = new ConcurrentHashMap<>();
+    private final Queue<WaitingPlayer> waitingQueue = new ConcurrentLinkedQueue<>(); //la file d'attente
+    private final Map<String, PvPGameService> activeGames = new ConcurrentHashMap<>(); //Les partie en cours
+    private final Map<String, String> playerToGame = new ConcurrentHashMap<>();//permet de savoir quel joueur est dans quel partie
 
     private MatchmakingManager() {}
 
@@ -19,6 +19,9 @@ public class MatchmakingManager {
         return instance;
     }
 
+    /**
+     * Cette fonction permet d'ajouter un joueur dans la file d'attente
+     * */
     public synchronized WaitingPlayer addPlayerToQueue(String clientId, String username, ClientHandler handler) {
         System.out.println("🔍 [Matchmaking] " + username + " rejoint la file d'attente");
 
@@ -54,6 +57,9 @@ public class MatchmakingManager {
         return opponent;
     }
 
+    /**
+     * Cette fonction permet de retirer un jouer de la file d'attente
+     * */
     public synchronized void removePlayer(String clientId) {
         waitingQueue.removeIf(wp -> wp.clientId.equals(clientId));
 

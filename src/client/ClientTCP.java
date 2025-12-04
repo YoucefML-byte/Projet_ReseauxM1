@@ -13,12 +13,12 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
 public class ClientTCP {
-    private Socket socket;
-    private BufferedReader in;
-    private PrintWriter out;
-    private Joueur joueur;
-    private boolean isPvPMode = false;
-    private String opponentName = null;
+    private Socket socket;//la socket de communication
+    private BufferedReader in;//flux d'entrée'
+    private PrintWriter out;//flux de sortie
+    private Joueur joueur;//joueur avec qui il communinque
+    private boolean isPvPMode = false; //mode PVP
+    private String opponentName = null;//le pseudo de l'ennemi
 
     public ClientTCP(String nomJoueur, int tailleGrille) {
         this.joueur = new Joueur(nomJoueur, tailleGrille);
@@ -33,7 +33,7 @@ public class ClientTCP {
         socket.connect(new InetSocketAddress(ip, port), 3000);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
         out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
-        System.out.println("Connecté au serveur : " + ip + ":" + port);
+        //System.out.println("Connecté au serveur : " + ip + ":" + port);
     }
 
     public void envoyer(Message msg) {
@@ -71,7 +71,7 @@ public class ClientTCP {
     }
 
     // ========================================
-    // BOUCLE DE JEU
+    //  DIALOGUE
     // ========================================
 
     public void startMessaging() throws IOException {
@@ -91,11 +91,11 @@ public class ClientTCP {
                 System.out.println("⏳ Tour de " + (isPvPMode ? opponentName : "l'adversaire") + "...");
             }
 
-            // En mode PvP, attendre les messages adverses
+            // Si on est en mode PvP et que ce n'est pas notre tour, on attends
             if (isPvPMode && !monTour) {
                 Message msg = recevoir();
 
-                // 🔥 CORRECTION : Gérer la déconnexion
+                // Si on recoie rien ca veut dire qu'on a perdue la connexion
                 if (msg == null) {
                     System.out.println("\n❌ Connexion perdue avec le serveur.");
                     System.out.println("🎉 Vous gagnez par forfait !");
@@ -133,7 +133,7 @@ public class ClientTCP {
             }
 
             if (input.toLowerCase().startsWith("shoot")) {
-                // 🔥 CORRECTION : Utiliser Boolean pour distinguer fin de partie
+                //resultat booleen pour voir si la partie est terminé ou pas
                 Boolean resultat = traiterTir(input, monTour, console);
                 if (resultat == null) {
                     // Partie terminée
@@ -183,7 +183,7 @@ public class ClientTCP {
     private Boolean traiterTirPvP(int x, int y, BufferedReader console) throws IOException {
         Message msg = recevoir();
 
-        // 🔥 CORRECTION : Gérer la déconnexion
+        // Si on recoie rien ca veut dire qu'on a perdue la connexion
         if (msg == null) {
             System.out.println("\n❌ Connexion perdue avec le serveur.");
             close();
@@ -196,7 +196,7 @@ public class ClientTCP {
         System.out.println("Ton tir en (" + (x+1) + "," + (y+1) + ") : " + resultat
                 + (res.getNomBateau() != null ? " sur " + res.getNomBateau() : ""));
 
-        // 🔥 CORRECTION : Ne pas enregistrer ALREADY_TRIED (ça écrase le vrai résultat)
+        //on enregistre pas ALREADY_TRIED pour pas ecraser le vrai resutat
         if (resultat != ResultatTir.ALREADY_TRIED && resultat != ResultatTir.OUT_OF_BOUNDS) {
             joueur.enregistrerResultatTir(x, y, resultat);
         }
@@ -243,19 +243,19 @@ public class ClientTCP {
         System.out.println("Ton tir en (" + (x + 1) + "," + (y + 1) + ") : " + resultat
                 + (res.getNomBateau() != null ? " sur " + res.getNomBateau() : ""));
 
-        // 🔥 CORRECTION : Ne pas enregistrer ALREADY_TRIED (ça écrase le vrai résultat)
+        //on enregistre pas ALREADY_TRIED pour pas ecraser le vrai resutat
         if (resultat != ResultatTir.ALREADY_TRIED && resultat != ResultatTir.OUT_OF_BOUNDS) {
             joueur.enregistrerResultatTir(x, y, resultat);
         }
 
-        // 🔥 CORRECTION : Vérifier IMMÉDIATEMENT si le joueur a gagné
+        // On vérifier immediatement si le joueur a gagné
         if (res.isGameOver()) {
             afficherFinPartie(true);
             proposerRejouer(console);
             return null; // Partie terminée
         }
 
-        // 🔥 CORRECTION : Si tir invalide, le joueur rejoue
+        //  Si tir invalide, le joueur rejoue
         if (resultat == ResultatTir.ALREADY_TRIED || resultat == ResultatTir.OUT_OF_BOUNDS) {
             System.out.println("⚠️ Tir invalide, réessayez.");
             return true;
@@ -264,12 +264,12 @@ public class ClientTCP {
         boolean rejoue = (resultat == ResultatTir.HIT || resultat == ResultatTir.SUNK);
         System.out.println(rejoue ? "✨ TOUCHÉ ! Vous rejouez !" : "💧 Raté... Tour de l'adversaire.");
 
-        // 🔥 Si le joueur a touché, il rejoue immédiatement
+        // Si le joueur a touché, il rejoue immédiatement
         if (rejoue) {
             return true;
         }
 
-        // 🔥 Le joueur a raté : attendre le(s) tir(s) du serveur
+        //  Le joueur a raté : attendre le tir du serveur
         Message msg2 = recevoir();
         if (msg2 == null) {
             System.out.println("\n❌ Connexion perdue avec le serveur.");
@@ -278,10 +278,10 @@ public class ClientTCP {
         }
 
         if (!(msg2 instanceof ServerShotMessage sshot)) {
-            return false; // Pas de tir serveur, tour suivant
+            return false; // Pas de tir serveur, on passe au tour suivant
         }
 
-        // Vérifier game over avant de traiter les tirs
+        // avant de traiter les tir on verifie d'abord game over
         if (sshot.isGameOver() && sshot.getWinner() != null && !sshot.getWinner().equals("SERVER")) {
             afficherFinPartie(true);
             proposerRejouer(console);
@@ -296,7 +296,7 @@ public class ClientTCP {
             }
         }
 
-        // 🔥 CORRECTION : Après les tirs du serveur, c'est au tour du joueur
+        // Après les tirs du serveur, c'est au tour du joueur
         return true;
     }
 
@@ -342,10 +342,16 @@ public class ClientTCP {
     // GESTION DES ÉVÉNEMENTS
     // ========================================
 
+    /**
+     * Cette fonction permet le gestion de fin partie (si un des deux jouer perd ou quitte)
+     * */
     private void handleGameOver(String winner) {
         afficherFinPartie(winner.equals(joueur.getNom()));
     }
 
+    /**
+     * Cette fonction permet l'affichage de linterface de fin de partie
+     * */
     private void afficherFinPartie(boolean victoire) {
         System.out.println("\n╔═══════════════════════════════════╗");
         System.out.println("         FIN DE LA PARTIE");
@@ -355,6 +361,9 @@ public class ClientTCP {
         System.out.println("╚═══════════════════════════════════╝\n");
     }
 
+    /**
+     * Cette fonction permet de gerer le tir de l'adversaire
+     * */
     private void handleOpponentShot(OpponentShotMessage opShot) {
         if (opShot.getX() >= 0 && opShot.getY() >= 0) {
             System.out.println("\n>> " + opponentName + " a tiré en ("
@@ -364,6 +373,9 @@ public class ClientTCP {
         }
     }
 
+    /**
+     * Cette fonction permet de gerer la deconnection
+     * */
     private void gererDeconnexionAdversaire(OpponentLeftMessage leftMsg, BufferedReader console) throws IOException {
         System.out.println("\n⚠️ ═══════════════════════════════════");
         String raison = leftMsg.getReason().equals("disconnected")
@@ -378,6 +390,9 @@ public class ClientTCP {
     // CHOIX ET MATCHMAKING
     // ========================================
 
+    /**
+     * Cette fonction permet de gerer l'evement de reproposer de jouer quand le jouer repropose de jouer avec le même adversaire
+     * */
     private boolean proposerRejouer(BufferedReader console) throws IOException {
         while (true) {
             System.out.print("\nVoulez-vous rejouer ? (o/n) : ");
@@ -397,6 +412,9 @@ public class ClientTCP {
         }
     }
 
+    /**
+     * Cette fonction permet de gerer l'evenement qui permet de reproposer au joueru de rejouer aprés une fin de partie
+     * */
     private boolean gererChoixRejouer(BufferedReader console) throws IOException {
         if (isPvPMode) {
             return gererRejouerPvP(console);
@@ -405,6 +423,9 @@ public class ClientTCP {
         }
     }
 
+    /**
+     * Cette fonction permet de gerer l'evenement qui permet de reproposer au joueru de rejouer contre un autre joueur aprés une fin de partie
+     * */
     private boolean gererRejouerPvP(BufferedReader console) throws IOException {
         System.out.println("\n💭 Options :");
         System.out.println("1. Rejouer contre " + opponentName);
@@ -420,7 +441,9 @@ public class ClientTCP {
             default: return gererRematchPvP(console);
         }
     }
-
+    /**
+     * Cette fonction permet de gerer l'evenement qui permet de reproposer au joueur de rejouer contre le serveur (BOT) aprés une fin de partie
+     * */
     private boolean gererRejouerBot(BufferedReader console) throws IOException {
         System.out.println("\n💭 Options :");
         System.out.println("1. Rejouer contre le BOT");
@@ -440,6 +463,9 @@ public class ClientTCP {
         }
     }
 
+    /**
+     * Cette fonction permet de lire le choix du jouer
+     * */
     private int lireChoix(BufferedReader console, int defaut) {
         try {
             String choixStr = console.readLine();
@@ -449,6 +475,9 @@ public class ClientTCP {
         }
     }
 
+    /**
+     * Cette fonction permet de gerer l'evenement qui permet de changer du mode PVP au mode BOT
+     * */
     private boolean changerVersBot(BufferedReader console) throws IOException {
         System.out.println("\n🔄 Changement vers BOT...");
         isPvPMode = false;
@@ -459,6 +488,9 @@ public class ClientTCP {
         return true;
     }
 
+    /**
+     * Cette fonction permet de gerer l'evenement qui permet de changer du mode BOT au mode PVP
+     * */
     private boolean changerVersPvP(BufferedReader console) throws IOException {
         System.out.println("\n🔄 Changement vers PvP...");
         isPvPMode = true;
@@ -468,6 +500,9 @@ public class ClientTCP {
         return true;
     }
 
+    /**
+     * Cette fonction permet de gerer l'evenement de lorsque le joeur choisie de jouer avec un nouvel adversaire
+     * */
     private boolean chercherNouvelAdversaire(BufferedReader console) throws IOException {
         System.out.println("\n🔄 Recherche d'un nouvel adversaire...");
         opponentName = null;
@@ -477,6 +512,9 @@ public class ClientTCP {
         return true;
     }
 
+    /**
+     * Cette fonction permet de nettoyer le buffer et de permetre au jouer d'attendre un nouveau adversaire dans la file d'attente
+     * */
     private void attendreMatchmaking() throws IOException {
         System.out.println("🔍 Recherche d'un adversaire...");
         viderBuffer();
@@ -496,6 +534,9 @@ public class ClientTCP {
         }
     }
 
+    /**
+     * Cette fonction permet de gerer le rematch entre deux joeur
+     * */
     private boolean gererRematchPvP(BufferedReader console) throws IOException {
         System.out.println("\n🔄 Demande de rematch...");
         envoyer(new NewGameRequest());
@@ -526,6 +567,9 @@ public class ClientTCP {
         return gererApresRefusRematch(console);
     }
 
+    /**
+     * Cette fonction permet de gerer le cas ou l'adversaire refuse de jouer contre ce joueur
+     * */
     private boolean gererApresRefusRematch(BufferedReader console) throws IOException {
         System.out.println("\n💭 Options :");
         System.out.println("1. Chercher un nouvel adversaire");
@@ -550,6 +594,9 @@ public class ClientTCP {
     // PLACEMENT DES BATEAUX
     // ========================================
 
+    /**
+     * Cette fonction permet de gerer le placememnt des bâteaux du joueur dans la grille
+     * */
     private void phasePlacement() throws IOException {
         BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
 
@@ -572,6 +619,9 @@ public class ClientTCP {
         System.out.println("═══════════════════════════════════\n");
     }
 
+    /**
+     * Cette fonction permet de placer un bâteau
+     * */
     private void placerUnBateau(BufferedReader console, Bâteau bateau, String nom, int longueur, ShipType shipType) throws IOException {
         while (true) {
             System.out.println("\n📍 Placement du " + nom + " (longueur " + longueur + ")");
@@ -624,6 +674,9 @@ public class ClientTCP {
         }
     }
 
+    /**
+     * Cette fonction permet la grille perso du joueur et sa grille de tir
+     * */
     private void afficherVueJoueur() {
         System.out.println("\n═══════════════════════════════════════");
         System.out.println("     VUE DU JOUEUR " + joueur.getNom());
@@ -639,11 +692,15 @@ public class ClientTCP {
     // DÉMARRAGE DE PARTIE
     // ========================================
 
+    /**
+     * Cette fonction permet au joueur de choisir le mode de jeu qu'il veut (BOT ou PVP)
+     * */
     private boolean choisirModeJeu(BufferedReader console) throws IOException {
         System.out.println("\n╔═══════════════════════════════════════╗");
         System.out.println("        SÉLECTION DU MODE");
         System.out.println("╚═══════════════════════════════════════╝");
-        System.out.println("1. Jouer contre le BOT (IA)");
+        System.out.println("1. Jouer contre le BOT " +
+                "");
         System.out.println("2. Jouer contre un JOUEUR (PvP)");
         System.out.print("\nVotre choix : ");
 
@@ -665,6 +722,9 @@ public class ClientTCP {
         return true;
     }
 
+    /**
+     * Cette fonction permet de demmarer une nouvelle partie contre le même joueur
+     * */
     private void demarrerNouvellePartie(BufferedReader console) throws IOException {
         this.joueur = new Joueur(joueur.getNom(), 10);
         phasePlacement();
@@ -700,9 +760,9 @@ public class ClientTCP {
         }
     }
 
-    // ========================================
+    // ===========
     // MAIN
-    // ========================================
+    // ===========
 
     public static void main(String[] args) {
         ClientTCP client = new ClientTCP("Client", 10);
@@ -712,10 +772,25 @@ public class ClientTCP {
             System.out.println("        JEU DE BATAILLE NAVALE");
             System.out.println("╚═══════════════════════════════════════╝\n");
 
-            System.out.print("IP du serveur : ");
-            String ip = console.readLine();
-            System.out.print("Port du serveur : ");
-            int port = Integer.parseInt(console.readLine());
+
+            String ip = "127.0.0.1";
+            int port = 6666;
+
+            /*System.out.print("IP du serveur [127.0.0.1] : ");
+            String ipInput = console.readLine();
+            if (ipInput != null && !ipInput.trim().isEmpty()) {
+                ip = ipInput.trim();
+            }
+
+            System.out.print("Port du serveur [6666] : ");
+            String portInput = console.readLine();
+            if (portInput != null && !portInput.trim().isEmpty()) {
+                try {
+                    port = Integer.parseInt(portInput.trim());
+                } catch (NumberFormatException e) {
+                    System.out.println("⚠️ Port invalide, utilisation du port par défaut : 6666");
+                }
+            }*/
 
             client.connecter(ip, port);
 
@@ -726,15 +801,18 @@ public class ClientTCP {
             client.envoyer(new SetUsernameRequest(pseudo.trim()));
             client.recevoir();
             System.out.println("✓ Bienvenue " + pseudo + " !\n");
-
+            //une fois la connexion effectué et le joueur donne son pseudo on creer un joueur qui à le même pseudo et vas être gerer par le clientHandler client (chaque joueur possede un clientHandler unique à lui pour lui permettre de communiquer et de jouer)
             client.joueur = new Joueur(pseudo.trim(), 10);
+            //choix du mode
             client.choisirModeJeu(console);
+            //une fois choisie on demmare la partie
             client.demarrerNouvellePartie(console);
 
         } catch (Exception e) {
             System.err.println("Erreur : " + e.getMessage());
             e.printStackTrace();
         } finally {
+            //une fois la partie terminée ou le client decide de quitter la partie on fermer la socket de communication entre le clientHander(thread fils du serveur et le client (joueur))
             client.close();
         }
     }

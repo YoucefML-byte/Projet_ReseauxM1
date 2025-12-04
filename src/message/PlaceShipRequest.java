@@ -6,10 +6,11 @@ import etats.ShipType;
 
 public class PlaceShipRequest extends Message {
 
-    private final ShipType shipType;
+    private final ShipType shipType;//type du bâteau à placer
+    //les coordonnées de l'emplacement
     private final int x;
     private final int y;
-    private final Orientation orientation;
+    private final Orientation orientation;// horizontal ou vertical
 
     public PlaceShipRequest(ShipType shipType, int x, int y, Orientation orientation) {
         this.type = MessegeType.PLACE_SHIP;
@@ -40,7 +41,7 @@ public class PlaceShipRequest extends Message {
      * */
     public static PlaceShipRequest fromJson(String json) {
 
-        // Nettoyage comme pour ShotRequest
+        // On enlève les { } et "
         String cleaned = json.replace("{", "")
                 .replace("}", "")
                 .replace("\"", "");
@@ -59,6 +60,7 @@ public class PlaceShipRequest extends Message {
             String key = kv[0].trim();
             String value = kv[1].trim();
 
+            //extraction de la bonne information
             switch (key) {
                 case "shipType" -> shipType = ShipType.valueOf(value);
                 case "x"        -> x = Integer.parseInt(value);
@@ -67,7 +69,7 @@ public class PlaceShipRequest extends Message {
                 default -> {}
             }
         }
-
+        //on a mal extrait le type du bâteau ou il juste pas été renseigné donc information manquante
         if (shipType == null) {
             throw new IllegalArgumentException("Champ 'shipType' manquant dans " + json);
         }

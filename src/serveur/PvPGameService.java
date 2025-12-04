@@ -14,15 +14,15 @@ import message.ShotResponse;
 import java.io.PrintWriter;
 
 class PvPGameService {
-    private Joueur joueur1, joueur2;
-    private PrintWriter out1, out2;
-    private boolean tourJoueur1 = true;
-    private boolean gameOver = false;
-    private String winner = null;
-    private final int taille = 10;
-    private int bateauxPlacesJ1 = 0, bateauxPlacesJ2 = 0;
+    private Joueur joueur1, joueur2; // deux joueurs
+    private PrintWriter out1, out2; // les deux flux
+    private boolean tourJoueur1 = true; // le premier dans le matchmaking commence toujours
+    private boolean gameOver = false;//si y a une defaite
+    private String winner = null; // gagnat
+    private final int taille = 10; //la taille de la grille
+    private int bateauxPlacesJ1 = 0, bateauxPlacesJ2 = 0; //nombre de bâteaux placé
     private final int NOMBRE_BATEAUX = 4;
-    private boolean player1WantsRematch = false, player2WantsRematch = false;
+    private boolean player1WantsRematch = false, player2WantsRematch = false;//pour les rematch
 
     public PvPGameService(String username1, String username2, PrintWriter out1, PrintWriter out2) {
         this.joueur1 = new Joueur(username1, taille);
@@ -31,7 +31,9 @@ class PvPGameService {
         this.out2 = out2;
         System.out.println("🎮 Partie PvP créée : " + username1 + " vs " + username2);
     }
-
+    /**
+     * Cette fonction permet au joeur de placer leurs bâteaux
+     * */
     public synchronized boolean placeShip(PlaceShipRequest req, boolean isPlayer1) {
         Joueur joueur = isPlayer1 ? joueur1 : joueur2;
         Bâteau b = creerBateau(req.getShipType());
@@ -47,6 +49,9 @@ class PvPGameService {
         return ok;
     }
 
+    /**
+     * Cette fonction permet de traiter les tirs des joueurs
+     * */
     public synchronized PvPRoundResult processShot(ShotRequest req, boolean fromPlayer1) {
         if (gameOver) {
             return creerRoundResultGameOver();
@@ -80,7 +85,7 @@ class PvPGameService {
 
         tireur.getGrilleTirs().marquerResultatTir(req.getX(), req.getY(), resultat);
 
-        // Vérifier victoire
+        // Vérifier  si y a victoire
         if (cible.aPerdu()) {
             gameOver = true;
             winner = tireur.getNom();
@@ -93,7 +98,7 @@ class PvPGameService {
             );
         }
 
-        // Gérer changement de tour
+        // Gérer le changement de tour
         boolean tireurRejoue = (resultat == ResultatTir.HIT || resultat == ResultatTir.SUNK);
         if (!tireurRejoue) {
             tourJoueur1 = !tourJoueur1;
@@ -106,6 +111,9 @@ class PvPGameService {
         );
     }
 
+    /**
+     * Cette fonction permet de gerer la reinitialisation de la partie
+     * */
     public synchronized void resetGame() {
         gameOver = false;
         winner = null;
@@ -121,18 +129,26 @@ class PvPGameService {
         joueur2 = new Joueur(username2, taille);
     }
 
+    /**
+     * Cette fonction permet d'envoyer les requêtes de rematch
+     * */
     public synchronized String requestRematch(boolean fromPlayer1) {
         if (fromPlayer1) player1WantsRematch = true;
         else player2WantsRematch = true;
 
         return (player1WantsRematch && player2WantsRematch) ? "ACCEPTED" : "WAITING";
     }
-
+    /**
+     * Cette fonction permet d'annuler le rematch
+     * */
     public synchronized void cancelRematch(boolean fromPlayer1) {
         player1WantsRematch = false;
         player2WantsRematch = false;
     }
 
+    /**
+     * Cette fonction permet au joueur de savoir si l'autre souhaite faire un rematch
+     * */
     public synchronized boolean doesOpponentWantRematch(boolean checkingPlayer1) {
         return checkingPlayer1 ? player2WantsRematch : player1WantsRematch;
     }
@@ -145,6 +161,9 @@ class PvPGameService {
         );
     }
 
+    /**
+     * Cette fonction de creer les bâteaux pour les placer
+     * */
     private Bâteau creerBateau(etats.ShipType type) {
         return switch (type) {
             case PORTE_AVION -> new bâteaux.PorteAvion();
@@ -158,9 +177,13 @@ class PvPGameService {
     public String getJoueur2Name() { return joueur2.getNom(); }
     public boolean isBothPlayersReady() { return bateauxPlacesJ1 == NOMBRE_BATEAUX && bateauxPlacesJ2 == NOMBRE_BATEAUX; }
 
+
+    /**
+     * Cette classe permet de sotcker les resultats des tirs des deux joueur
+     * */
     public static class PvPRoundResult {
-        private final ShotResponse shooterResponse;
-        private final OpponentShotMessage opponentMsg;
+        private final ShotResponse shooterResponse; //reponse au tir
+        private final OpponentShotMessage opponentMsg;//le tir de l'ennemi
         private final boolean gameOver;
 
         public PvPRoundResult(ShotResponse shooterResponse, OpponentShotMessage opponentMsg, boolean gameOver) {

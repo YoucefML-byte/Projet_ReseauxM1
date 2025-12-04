@@ -19,10 +19,6 @@ public class Bâteau {
         return longueur;
     }
 
-    public int getPointsRestants() {
-        return pointsRestants;
-    }
-
     public void toucher() {
         if (pointsRestants > 0) {
             pointsRestants--;
