@@ -1,0 +1,94 @@
+Mémoire totale : 4,0 GiB
+Instanciation du bot "Random"
+6 classes ont été trouvées
+class awele.bot.demo.first.FirstBot
+class awele.bot.demo.random.RandomBot
+class awele.bot.demo.last.LastBot
+class awele.bot.demo.minmax.MinMaxBot
+class awele.bot.demo.knn2.Knn2Bot
+class awele.bot.demo.knn1.Knn1Bot
+
+Bot 1/6
+Classe : awele.bot.demo.first.FirstBot
+Instanciation du bot "First"
+Nom du bot : First
+Auteur(s) : Alexandre Blansché
+Temps d'apprentissage : 00:00:00.000
+Durée d'une prise de décision : 00:00:00.000
+Usage mémoire : 0 B
+Usage mémoire maximum : 621,5 KiB
+
+Bot 2/6
+Classe : awele.bot.demo.random.RandomBot
+Instanciation du bot "Random"
+Nom du bot : Random
+Auteur(s) : Alexandre Blansché
+Temps d'apprentissage : 00:00:00.000
+Durée d'une prise de décision : 00:00:00.000
+Usage mémoire : 32 B
+Usage mémoire maximum : 305,7 KiB
+
+Bot 3/6
+Classe : awele.bot.demo.last.LastBot
+Instanciation du bot "Last"
+Nom du bot : Last
+Auteur(s) : Alexandre Blansché
+Temps d'apprentissage : 00:00:00.000
+Durée d'une prise de décision : 00:00:00.000
+Usage mémoire : 800 B
+Usage mémoire maximum : 309,1 KiB
+
+Bot 4/6
+Classe : awele.bot.demo.minmax.MinMaxBot
+Instanciation du bot "MinMax"
+Nom du bot : MinMax
+Auteur(s) : Alexandre Blansché
+Temps d'apprentissage : 00:00:00.000
+Durée d'une prise de décision : 00:00:00.098
+Usage mémoire : 1,8 KiB
+Usage mémoire maximum : 63,0 MiB
+
+Bot 5/6
+Classe : awele.bot.demo.knn2.Knn2Bot
+Instanciation du bot "k-NN2"
+Nom du bot : k-NN2
+Auteur(s) : Alexandre Blansché
+Temps d'apprentissage : 00:00:00.011
+Durée d'une prise de décision : 00:00:00.000
+Usage mémoire : 26,8 KiB
+Usage mémoire maximum : 1,5 MiB
+
+Bot 6/6
+Classe : awele.bot.demo.knn1.Knn1Bot
+Instanciation du bot "k-NN1"
+Nom du bot : k-NN1
+Auteur(s) : Alexandre Blansché
+Temps d'apprentissage : 00:00:00.003
+Durée d'une prise de décision : 00:00:00.000
+Usage mémoire : 13,2 KiB
+Usage mémoire maximum : 803,7 KiB
+
+6 bots ont été instanciés
+Durée du chargement : 00:00:04.566
+Mémoire utilisée : 1,6 MiB
+
+Que le championnat commence !
+
+Affrontement 1/15
+First vs. Random
+Score : 1.61 - 1.37
+First a gagné
+Nombre de coups joués : 148.98 par match
+Durée : 00:00:00.000 par match
+Mémoire utilisée : 1,5 MiB
+
+Affrontement 2/15
+First vs. Last
+Score : 0.0 - 3.0
+Last a gagné
+Nombre de coups joués : 291.5 par match
+Durée : 00:00:00.000 par match
+Mémoire utilisée : 1,5 MiB
+
+Affrontement 3/15
+First vs. MinMax

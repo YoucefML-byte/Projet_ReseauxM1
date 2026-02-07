@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bot Awélé - Architecture Hybride Multi-Niveaux</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e27;
+            --bg-secondary: #151a35;
+            --bg-card: #1a1f3a;
+            --accent-primary: #00d9ff;
+            --accent-secondary: #ff6b9d;
+            --accent-tertiary: #ffd93d;
+            --text-primary: #e8eaed;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --border: rgba(255, 255, 255, 0.1);
+            --glow: rgba(0, 217, 255, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 217, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 107, 157, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 90%, rgba(255, 217, 61, 0.05) 0%, transparent 50%);
+            z-index: -1;
+            animation: bgShift 20s ease infinite;
+        }
+
+        @keyframes bgShift {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(20px, -20px); }
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 80px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '🎮';
+            position: absolute;
+            font-size: 300px;
+            opacity: 0.03;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.03; }
+            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.05; }
+        }
+
+        h1 {
+            font-family: 'Space Mono', monospace;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            animation: slideDown 0.8s ease-out 0.2s both;
+        }
+
+        .badges {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: slideDown 0.8s ease-out 0.4s both;
+        }
+
+        .badge {
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: 2px solid;
+            transition: all 0.3s ease;
+        }
+
+        .badge-primary {
+            background: rgba(0, 217, 255, 0.1);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .badge-secondary {
+            background: rgba(255, 107, 157, 0.1);
+            border-color: var(--accent-secondary);
+            color: var(--accent-secondary);
+        }
+
+        .badge-tertiary {
+            background: rgba(255, 217, 61, 0.1);
+            border-color: var(--accent-tertiary);
+            color: var(--accent-tertiary);
+        }
+
+        .badge:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Navigation */
+        nav {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 60px;
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            animation: slideDown 0.8s ease-out 0.6s both;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent-primary);
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover {
+            color: var(--accent-primary);
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        /* Section */
+        section {
+            margin-bottom: 80px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            font-family: 'Space Mono', monospace;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            color: var(--accent-primary);
+            position: relative;
+            display: inline-block;
+        }
+
+        h2::before {
+            content: '//';
+            margin-right: 15px;
+            color: var(--accent-secondary);
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-primary), transparent);
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin: 30px 0 20px 0;
+            color: var(--accent-secondary);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-primary);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px var(--glow);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        /* Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        /* Architecture diagram */
+        .architecture {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px 0;
+            font-family: 'Space Mono', monospace;
+            position: relative;
+        }
+
+        .architecture::before {
+            content: 'ARCHITECTURE';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: var(--bg-primary);
+            padding: 0 10px;
+            font-size: 0.8rem;
+            color: var(--accent-tertiary);
+            font-weight: 700;
+        }
+
+        .layer {
+            background: var(--bg-card);
+            border-left: 4px solid var(--accent-primary);
+            padding: 15px 20px;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+        }
+
+        .layer:hover {
+            border-left-color: var(--accent-secondary);
+            transform: translateX(10px);
+            box-shadow: -5px 0 20px rgba(0, 217, 255, 0.2);
+        }
+
+        /* Formula */
+        .formula {
+            background: var(--bg-secondary);
+            border: 2px dashed var(--accent-tertiary);
+            border-radius: 10px;
+            padding: 25px;
+            font-family: 'Space Mono', monospace;
+            font-size: 1.1rem;
+            text-align: center;
+            margin: 30px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .formula::before {
+            content: '∑';
+            position: absolute;
+            font-size: 150px;
+            opacity: 0.05;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--bg-card);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        thead {
+            background: var(--bg-secondary);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            font-weight: 700;
+            color: var(--accent-primary);
+            font-family: 'Space Mono', monospace;
+        }
+
+        tbody tr {
+            transition: background 0.3s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(0, 217, 255, 0.05);
+        }
+
+        /* Code blocks */
+        pre {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        pre::before {
+            content: '</>';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: var(--accent-secondary);
+            opacity: 0.3;
+            font-size: 1.2rem;
+        }
+
+        code {
+            color: var(--accent-tertiary);
+        }
+
+        /* Checklist */
+        .checklist {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .checklist li {
+            padding: 12px 20px 12px 45px;
+            margin: 10px 0;
+            background: var(--bg-card);
+            border-radius: 8px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .checklist li::before {
+            content: '☐';
+            position: absolute;
+            left: 15px;
+            font-size: 1.5rem;
+            color: var(--accent-primary);
+        }
+
+        .checklist li:hover {
+            background: rgba(0, 217, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+            margin: 40px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary));
+        }
+
+        .timeline-item {
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -46px;
+            top: 5px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            border: 3px solid var(--bg-primary);
+            box-shadow: 0 0 15px var(--glow);
+        }
+
+        .timeline-time {
+            font-family: 'Space Mono', monospace;
+            color: var(--accent-tertiary);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent, rgba(0, 217, 255, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat:hover {
+            transform: scale(1.05);
+            border-color: var(--accent-primary);
+        }
+
+        .stat:hover::before {
+            opacity: 1;
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 60px 20px;
+            border-top: 1px solid var(--border);
+            margin-top: 100px;
+            background: var(--bg-secondary);
+        }
+
+        footer p {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .footer-emoji {
+            font-size: 3rem;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .timeline {
+                padding-left: 30px;
+            }
+        }
+
+        /* Scroll animations */
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+
+        .scroll-reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Highlight */
+        .highlight {
+            background: linear-gradient(120deg, rgba(0, 217, 255, 0.2) 0%, rgba(255, 107, 157, 0.2) 100%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        /* Warning/Success boxes */
+        .box {
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid;
+        }
+
+        .box-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--success);
+        }
+
+        .box-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: var(--warning);
+        }
+
+        .box-info {
+            background: rgba(0, 217, 255, 0.1);
+            border-color: var(--accent-primary);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🎮 Bot Awélé</h1>
+        <p class="subtitle">Architecture Hybride Multi-Niveaux</p>
+        <div class="badges">
+            <span class="badge badge-primary">Note visée : 17-19/20</span>
+            <span class="badge badge-secondary">Temps : 1 heure max</span>
+            <span class="badge badge-tertiary">Master 1 Informatique</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <nav>
+            <ul>
+                <li><a href="#overview">Vue d'ensemble</a></li>
+                <li><a href="#architecture">Architecture</a></li>
+                <li><a href="#components">Composants</a></li>
+                <li><a href="#strategy">Stratégie</a></li>
+                <li><a href="#timeline">Timeline</a></li>
+                <li><a href="#checklist">Checklist</a></li>
+            </ul>
+        </nav>
+
+        <!-- Vue d'ensemble -->
+        <section id="overview" class="scroll-reveal">
+            <h2>Vue d'ensemble</h2>
+            
+            <div class="box box-info">
+                <strong>📌 Principe général</strong><br>
+                Le bot combine <span class="highlight">4 niveaux de décision</span> complémentaires pour maximiser les performances en championnat.
+            </div>
+
+            <div class="architecture">
+                <div class="layer">Niveau 1 : MLP Expert (Policy Network)</div>
+                <div class="layer">Niveau 2 : Value Network (Évaluation)</div>
+                <div class="layer">Niveau 3 : Minimax tactique (2 coups)</div>
+                <div class="layer">Niveau 4 : Heuristiques contextuelles</div>
+            </div>
+
+            <div class="formula">
+                Score(coup) = α·P<sub>MLP</sub> + β·V<sub>Network</sub> + γ·Minimax + δ·Heuristiques
+            </div>
+
+            <p style="text-align: center; color: var(--text-secondary); margin-top: 20px;">
+                Avec : α + β + γ + δ = 1.0<br>
+                <strong>Exemple optimisé :</strong> α=0.25, β=0.40, γ=0.25, δ=0.10
+            </p>
+        </section>
+
+        <!-- Stats -->
+        <section class="scroll-reveal">
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value">4</div>
+                    <div class="stat-label">Niveaux de décision</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">303</div>
+                    <div class="stat-label">Situations d'entraînement</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">60</div>
+                    <div class="stat-label">Minutes d'apprentissage</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">20</div>
+                    <div class="stat-label">Points maximum</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Architecture -->
+        <section id="architecture" class="scroll-reveal">
+            <h2>Architecture détaillée</h2>
+
+            <div class="grid">
+                <div class="card">
+                    <h3>🧠 MLP Expert</h3>
+                    <p><strong>Rôle :</strong> Imiter les décisions du joueur expert</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Paramètre</th>
+                                <th>Valeur</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Architecture</td><td>12 → 64 → 32 → 6</td></tr>
+                            <tr><td>Activation</td><td>ReLU → ReLU → Softmax</td></tr>
+                            <tr><td>Loss</td><td>Cross-Entropy</td></tr>
+                            <tr><td>Epochs</td><td>150</td></tr>
+                            <tr><td>Temps</td><td>~10 min</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h3>💎 Value Network</h3>
+                    <p><strong>Rôle :</strong> Évaluer la qualité d'une position</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Paramètre</th>
+                                <th>Valeur</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Architecture</td><td>12 → 32 → 16 → 1</td></tr>
+                            <tr><td>Activation</td><td>ReLU → ReLU → Tanh</td></tr>
+                            <tr><td>Loss</td><td>MSE</td></tr>
+                            <tr><td>Epochs</td><td>100</td></tr>
+                            <tr><td>Temps</td><td>~40 min</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h3>⚡ Minimax Tactique</h3>
+                    <p><strong>Rôle :</strong> Anticiper les coups immédiats</p>
+                    <ul style="margin-top: 15px; color: var(--text-secondary);">
+                        <li style="margin: 10px 0;">✓ Profondeur : 2 niveaux</li>
+                        <li style="margin: 10px 0;">✓ Alpha-Beta pruning</li>
+                        <li style="margin: 10px 0;">✓ ~30ms par décision</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>🎯 Heuristiques</h3>
+                    <p><strong>Rôle :</strong> Ajustements contextuels</p>
+                    <ul style="margin-top: 15px; color: var(--text-secondary);">
+                        <li style="margin: 10px 0;">✓ Fin de partie (< 10 graines)</li>
+                        <li style="margin: 10px 0;">✓ Patterns gagnants</li>
+                        <li style="margin: 10px 0;">✓ Stratégies phase de jeu</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Composants -->
+        <section id="components" class="scroll-reveal">
+            <h2>Structure du code</h2>
+
+            <pre><code>awele.bot.competitor.nomdubot/
+│
+├── MonBot.java                 // Classe principale
+├── MLPModel.java               // MLP Expert
+├── ValueNetwork.java           // Value Network
+├── MinimaxEvaluator.java       // Minimax + Alpha-Beta
+├── PatternDetector.java        // Détection de patterns
+├── BoardEvaluator.java         // Évaluation de position
+├── DataLoader.java             // Chargement données
+├── DataAugmentation.java       // Augmentation données
+└── Utils.java                  // Utilitaires</code></pre>
+
+            <div class="box box-warning">
+                <strong>⚠️ Contraintes critiques</strong><br>
+                • Temps d'apprentissage limité à 1 heure<br>
+                • Pas de multi-threading<br>
+                • Package unique : <code>awele.bot.competitor.nomdubot</code><br>
+                • Rendu avant le 3 mars 2026, 8h00
+            </div>
+        </section>
+
+        <!-- Timeline -->
+        <section id="timeline" class="scroll-reveal">
+            <h2>Timeline d'apprentissage</h2>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-time">00:00 - 00:10</div>
+                    <div class="card">
+                        <strong>Entraînement MLP Expert</strong>
+                        <p>Data augmentation + entraînement supervisé</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-time">00:10 - 00:30</div>
+                    <div class="card">
+                        <strong>Entraînement Value Network</strong>
+                        <p>Apprentissage supervisé sur les 303 situations</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-time">00:30 - 00:50</div>
+                    <div class="card">
+                        <strong>Affinage par auto-jeu</strong>
+                        <p>1000 parties pour améliorer le Value Network</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-time">00:50 - 00:55</div>
+                    <div class="card">
+                        <strong>Extraction de patterns</strong>
+                        <p>Analyse des 303 situations pour patterns gagnants</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-time">00:55 - 01:00</div>
+                    <div class="card">
+                        <strong>Optimisation paramètres</strong>
+                        <p>Grid search pour α, β, γ, δ optimaux</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stratégie -->
+        <section id="strategy" class="scroll-reveal">
+            <h2>Stratégie de développement</h2>
+
+            <h3>📅 Semaine 1 : Fondations</h3>
+            <div class="card">
+                <ul class="checklist">
+                    <li>Setup projet + DataLoader</li>
+                    <li>MLP Expert (architecture + entraînement)</li>
+                    <li>Value Network (architecture + entraînement)</li>
+                    <li>Intégration getDecision() basique</li>
+                    <li>Tests et debug</li>
+                </ul>
+                <div class="box box-success" style="margin-top: 20px;">
+                    <strong>Livrable :</strong> Bot fonctionnel → 11-13/20 garanti
+                </div>
+            </div>
+
+            <h3>📅 Semaine 2 : Optimisations</h3>
+            <div class="card">
+                <ul class="checklist">
+                    <li>Data augmentation (×3-4 exemples)</li>
+                    <li>Minimax + Alpha-Beta pruning</li>
+                    <li>PatternDetector (extraction + détection)</li>
+                    <li>Heuristiques contextuelles</li>
+                    <li>Grid search α, β, γ, δ</li>
+                </ul>
+                <div class="box box-success" style="margin-top: 20px;">
+                    <strong>Livrable :</strong> Bot compétitif → 14-16/20 probable
+                </div>
+            </div>
+
+            <h3>📅 Semaine 3 : Excellence</h3>
+            <div class="card">
+                <ul class="checklist">
+                    <li>Ensembliste de 3 MLP (bonus)</li>
+                    <li>Optimisation performances (temps d'exécution)</li>
+                    <li>Tests unitaires + JavaDoc complète</li>
+                    <li>Rédaction rapport (10 pages)</li>
+                    <li>Relecture et corrections finales</li>
+                </ul>
+                <div class="box box-success" style="margin-top: 20px;">
+                    <strong>Livrable :</strong> Bot d'élite → 17-19/20 possible 🏆
+                </div>
+            </div>
+        </section>
+
+        <!-- Checklist -->
+        <section id="checklist" class="scroll-reveal">
+            <h2>Checklist pour 17-19/20</h2>
+
+            <div class="grid">
+                <div class="card">
+                    <h3>🏆 Championnat (4-5/5)</h3>
+                    <ul class="checklist">
+                        <li>MLP Expert précis (>70%)</li>
+                        <li>Value Network robuste</li>
+                        <li>Minimax profondeur 2</li>
+                        <li>Heuristiques fin de partie</li>
+                        <li>Extraction de patterns</li>
+                        <li>Data augmentation</li>
+                        <li>Optimisation α, β, γ, δ</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>💻 Code Java (3/3)</h3>
+                    <ul class="checklist">
+                        <li>Architecture propre</li>
+                        <li>JavaDoc complète</li>
+                        <li>Tests unitaires (10+)</li>
+                        <li>Gestion d'erreurs</li>
+                        <li>Code commenté</li>
+                        <li>Conventions Java</li>
+                        <li>Patterns de conception</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>📄 Rapport (3/3)</h3>
+                    <ul class="checklist">
+                        <li>Structure académique</li>
+                        <li>5+ références biblio</li>
+                        <li>Schémas d'architecture</li>
+                        <li>Résultats chiffrés</li>
+                        <li>Graphiques & courbes</li>
+                        <li>Analyse critique</li>
+                        <li>Zéro faute</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>🎨 Ingéniosité (8-9/9)</h3>
+                    <ul class="checklist">
+                        <li>Approche multi-niveaux</li>
+                        <li>Justification théorique</li>
+                        <li>Innovation technique</li>
+                        <li>Démonstration efficacité</li>
+                        <li>Originalité</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bibliographie -->
+        <section class="scroll-reveal">
+            <h2>Bibliographie recommandée</h2>
+            
+            <div class="card">
+                <h3>📚 Intelligence Artificielle</h3>
+                <ol style="color: var(--text-secondary); line-height: 2;">
+                    <li>Silver, D., et al. (2016). "Mastering the game of Go with deep neural networks and tree search." <em>Nature</em>.</li>
+                    <li>Tesauro, G. (1995). "Temporal difference learning and TD-Gammon." <em>Communications of the ACM</em>.</li>
+                    <li>Sutton, R. S., & Barto, A. G. (2018). <em>Reinforcement learning: An introduction</em>. MIT Press.</li>
+                </ol>
+            </div>
+
+            <div class="card">
+                <h3>🎮 Awélé et jeux combinatoires</h3>
+                <ol start="4" style="color: var(--text-secondary); line-height: 2;">
+                    <li>Romein, J. W., & Bal, H. E. (2003). "Solving awari with parallel retrograde analysis." <em>IEEE Computer</em>.</li>
+                    <li>Allis, L. V. (1994). <em>Searching for solutions in games and artificial intelligence</em>. PhD thesis.</li>
+                </ol>
+            </div>
+
+            <div class="card">
+                <h3>🧠 Apprentissage profond</h3>
+                <ol start="6" style="color: var(--text-secondary); line-height: 2;">
+                    <li>Goodfellow, I., et al. (2016). <em>Deep Learning</em>. MIT Press.</li>
+                    <li>Chollet, F. (2021). <em>Deep Learning with Python</em>. Manning Publications.</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Conseils finaux -->
+        <section class="scroll-reveal">
+            <h2>Conseils finaux</h2>
+
+            <div class="box box-success">
+                <strong>✅ Priorités absolues</strong><br>
+                1. Avoir un bot qui marche (éviter disqualification)<br>
+                2. Optimiser pour GAGNER (pas maximiser les graines)<br>
+                3. Tester contre bots de référence<br>
+                4. Rapport chiffré et professionnel
+            </div>
+
+            <div class="box box-warning">
+                <strong>❌ Pièges à éviter</strong><br>
+                • Dépasser 1h dans learn()<br>
+                • Utiliser du multi-threading<br>
+                • Modifier le code fourni<br>
+                • Rendre en retard<br>
+                • Groupe de 3+ personnes
+            </div>
+
+            <div class="box box-info">
+                <strong>💡 Astuces</strong><br>
+                • Commencer tôt<br>
+                • Tester régulièrement<br>
+                • Documenter au fur et à mesure<br>
+                • Demander de l'aide si besoin<br>
+                • Garder du temps pour le rapport
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="footer-emoji">🏆</div>
+        <p>Que le meilleur bot gagne !</p>
+        <p style="font-size: 0.9rem;">Master 1 Informatique - Projet Bot Awélé - 2026</p>
+    </footer>
+
+    <script>
+        // Scroll reveal animation
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.scroll-reveal').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
