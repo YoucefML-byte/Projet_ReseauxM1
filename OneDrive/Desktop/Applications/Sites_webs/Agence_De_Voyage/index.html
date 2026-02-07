@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Wanderlust Travel - Votre agence de voyage pour des aventures inoubliables">
+    <title>Wanderlust Travel - Explorez le Monde</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- ========== HEADER & NAVBAR ========== -->
+    <header class="header" id="header">
+        <nav class="nav container">
+            <a href="#" class="nav__logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 2L3 9L16 16L29 9L16 2Z" fill="currentColor"/>
+                    <path d="M3 23L16 30L29 23V9L16 16L3 9V23Z" fill="currentColor" opacity="0.7"/>
+                </svg>
+                <span>Wanderlust</span>
+            </a>
+
+            <div class="nav__menu" id="nav-menu">
+                <ul class="nav__list">
+                    <li class="nav__item">
+                        <a href="#home" class="nav__link active-link">Accueil</a>
+                    </li>
+                    <li class="nav__item">
+                        <a href="#destinations" class="nav__link">Destinations</a>
+                    </li>
+                    <li class="nav__item">
+                        <a href="#packages" class="nav__link">Forfaits</a>
+                    </li>
+                    <li class="nav__item">
+                        <a href="#configurator" class="nav__link">Configurateur</a>
+                    </li>
+                    <li class="nav__item">
+                        <a href="#testimonials" class="nav__link">Témoignages</a>
+                    </li>
+                    <li class="nav__item">
+                        <a href="#contact" class="nav__link">Contact</a>
+                    </li>
+                </ul>
+                <div class="nav__close" id="nav-close">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="nav__actions">
+                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+                    <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+                <div class="nav__toggle" id="nav-toggle">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="main">
+        <!-- ========== HERO SECTION ========== -->
+        <section class="hero section" id="home">
+            <div class="hero__container container">
+                <div class="hero__content">
+                    <h1 class="hero__title">
+                        Explorez le Monde<br>
+                        <span class="gradient-text">Vivez l'Aventure</span>
+                    </h1>
+                    <p class="hero__description">
+                        Découvrez des destinations extraordinaires, créez des souvenirs inoubliables 
+                        et laissez-nous orchestrer votre voyage de rêve.
+                    </p>
+                    <div class="hero__buttons">
+                        <a href="#configurator" class="btn btn-primary">
+                            Planifier mon voyage
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </a>
+                        <a href="#destinations" class="btn btn-secondary">
+                            Découvrir
+                        </a>
+                    </div>
+                    <div class="hero__stats">
+                        <div class="stat">
+                            <h3 class="stat__number">150+</h3>
+                            <p class="stat__label">Destinations</p>
+                        </div>
+                        <div class="stat">
+                            <h3 class="stat__number">50K+</h3>
+                            <p class="stat__label">Voyageurs heureux</p>
+                        </div>
+                        <div class="stat">
+                            <h3 class="stat__number">4.9/5</h3>
+                            <p class="stat__label">Note moyenne</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero__image">
+                    <img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&h=1000&fit=crop" 
+                         alt="Voyageur explorant une destination exotique" 
+                         loading="lazy">
+                    <div class="hero__badge">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        </svg>
+                        <span>Destinations favorites</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== DESTINATIONS SECTION ========== -->
+        <section class="destinations section" id="destinations">
+            <div class="container">
+                <div class="section__header">
+                    <span class="section__subtitle">Nos destinations phares</span>
+                    <h2 class="section__title">Où souhaitez-vous aller ?</h2>
+                    <p class="section__description">
+                        Des plages paradisiaques aux montagnes majestueuses, 
+                        découvrez nos destinations les plus populaires
+                    </p>
+                </div>
+
+                <div class="destinations__grid">
+                    <article class="destination-card" data-aos="fade-up">
+                        <div class="destination-card__image">
+                            <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=800&fit=crop" 
+                                 alt="Montagnes norvégiennes" 
+                                 loading="lazy">
+                            <div class="destination-card__badge">Populaire</div>
+                        </div>
+                        <div class="destination-card__content">
+                            <div class="destination-card__header">
+                                <h3 class="destination-card__title">Norvège</h3>
+                                <div class="destination-card__rating">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                    </svg>
+                                    <span>4.9</span>
+                                </div>
+                            </div>
+                            <p class="destination-card__description">
+                                Fjords spectaculaires, aurores boréales et paysages à couper le souffle
+                            </p>
+                            <div class="destination-card__footer">
+                                <div class="destination-card__price">
+                                    <span class="price-label">À partir de</span>
+                                    <span class="price-value">1,890€</span>
+                                </div>
+                                <button class="btn-icon" aria-label="Voir les détails">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="destination-card" data-aos="fade-up" data-aos-delay="100">
+                        <div class="destination-card__image">
+                            <img src="https://images.unsplash.com/photo-1552733407-5d5c46c3bb3b?w=600&h=800&fit=crop" 
+                                 alt="Temples japonais" 
+                                 loading="lazy">
+                            <div class="destination-card__badge trending">Tendance</div>
+                        </div>
+                        <div class="destination-card__content">
+                            <div class="destination-card__header">
+                                <h3 class="destination-card__title">Japon</h3>
+                                <div class="destination-card__rating">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                    </svg>
+                                    <span>5.0</span>
+                                </div>
+                            </div>
+                            <p class="destination-card__description">
+                                Culture ancestrale, cerisiers en fleurs et technologie futuriste
+                            </p>
+                            <div class="destination-card__footer">
+                                <div class="destination-card__price">
+                                    <span class="price-label">À partir de</span>
+                                    <span class="price-value">2,190€</span>
+                                </div>
+                                <button class="btn-icon" aria-label="Voir les détails">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="destination-card" data-aos="fade-up" data-aos-delay="200">
+                        <div class="destination-card__image">
+                            <img src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600&h=800&fit=crop" 
+                                 alt="Plages des Maldives" 
+                                 loading="lazy">
+                        </div>
+                        <div class="destination-card__content">
+                            <div class="destination-card__header">
+                                <h3 class="destination-card__title">Maldives</h3>
+                                <div class="destination-card__rating">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                    </svg>
+                                    <span>4.8</span>
+                                </div>
+                            </div>
+                            <p class="destination-card__description">
+                                Eaux cristallines, bungalows sur pilotis et détente absolue
+                            </p>
+                            <div class="destination-card__footer">
+                                <div class="destination-card__price">
+                                    <span class="price-label">À partir de</span>
+                                    <span class="price-value">3,490€</span>
+                                </div>
+                                <button class="btn-icon" aria-label="Voir les détails">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="destination-card" data-aos="fade-up" data-aos-delay="300">
+                        <div class="destination-card__image">
+                            <img src="https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?w=600&h=800&fit=crop" 
+                                 alt="Safari en Afrique" 
+                                 loading="lazy">
+                            <div class="destination-card__badge adventure">Aventure</div>
+                        </div>
+                        <div class="destination-card__content">
+                            <div class="destination-card__header">
+                                <h3 class="destination-card__title">Kenya</h3>
+                                <div class="destination-card__rating">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                    </svg>
+                                    <span>4.7</span>
+                                </div>
+                            </div>
+                            <p class="destination-card__description">
+                                Safari inoubliable, Big Five et rencontre avec la faune sauvage
+                            </p>
+                            <div class="destination-card__footer">
+                                <div class="destination-card__price">
+                                    <span class="price-label">À partir de</span>
+                                    <span class="price-value">2,690€</span>
+                                </div>
+                                <button class="btn-icon" aria-label="Voir les détails">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== PACKAGES SECTION ========== -->
+        <section class="packages section" id="packages">
+            <div class="container">
+                <div class="section__header">
+                    <span class="section__subtitle">Nos offres</span>
+                    <h2 class="section__title">Forfaits tout compris</h2>
+                    <p class="section__description">
+                        Des packages personnalisés pour tous les budgets et tous les styles de voyage
+                    </p>
+                </div>
+
+                <div class="packages__grid">
+                    <article class="package-card" data-aos="fade-up">
+                        <div class="package-card__header">
+                            <h3 class="package-card__title">Escapade</h3>
+                            <p class="package-card__subtitle">Parfait pour une courte pause</p>
+                        </div>
+                        <div class="package-card__price">
+                            <span class="price-currency">€</span>
+                            <span class="price-amount">890</span>
+                            <span class="price-period">/personne</span>
+                        </div>
+                        <ul class="package-card__features">
+                            <li class="feature">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span>3-5 jours de voyage</span>
+                            </li>
+                            <li class="feature">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span>Hôtel 3 étoiles</span>
+                            </li>
+                            <li class="feature">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span>Vol aller-retour inclus</span>
+                            </li>
+                            <li class="feature">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span>Petit-déjeuner</span>
+                            </li>
+                            <li class="feature">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span>1 excursion incluse</span>
+                            </li>
+                        </ul>
+                        <button class="btn btn-outline-primary w-full">Choisir ce forfait</button>
+                    </article>
+
+                    <article class="package-card featured" data-aos="fade-up" data-aos-delay="100">
+                        <div class="package-card__badge">Le plus populaire</div>
+                        <div class="package-card__header">
+                            <h3 class="package-card__title">Découverte</h3>
+                            <p class="package-card__subtitle">L'équilibre parfait</p>
+                        </div>
+                        <div class="package-card__price">
+                            <span class="price-currency">€</span>
+                            <span class="price-amount">1,590</span>
+                            <span class="price-period">/personne</span>
+                        </div>
+                        <ul class="package-card__features">
+                            <li class="feature">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span>7-10 jours de voyage</span>
+                            </li>
+                            <li class="feature">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span>Hôtel 4 étoiles</span>
+                            </li>
+                            <li class="feature">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span>Vol aller-retour inclus</span>
+                            </li>
+                            <li class="feature">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span>Demi-pension</span>
+                            </li>
+                            <li class="feature">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span>3 excursions incluses</span>
+                            </li>
+                            <li class="feature">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span>Guide local</span>
+                            </li>
+                        </ul>
+                        <button class="btn btn-primary w-full">Choisir ce forfait</button>
+                    </article>
+
+                    <article class="package-card" data-aos="fade-up" data-aos-delay="200">
+                        <div class="package-card__header">
+                            <h3 class="package-card__title">Premium</h3>
+                            <p class="package-card__subtitle">L'expérience ultime</p>
+                        </div>
+                        <div class="package-card__price">
+                            <span class="price-currency">€</span>
+                            <span class="price-amount">3,290</span>
+                            <span class="price-period">/personne</span>
+                        </div>
+                        <ul class="package-card__features">
+                            <li class="feature">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span>14+ jours de voyage</span>
+                            </li>
+                            <li class="feature">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span>Hôtel 5 étoiles de luxe</span>
+                            </li>
+                            <li class="feature">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span>Vol business class</span>
+                            </li>
+                            <li class="feature">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span>Pension complète</span>
+                            </li>
+                            <li class="feature">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span>Excursions illimitées</span>
+                            </li>
+                            <li class="feature">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span>Concierge privé 24/7</span>
+                            </li>
+                            <li class="feature">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span>Transferts VIP</span>
+                            </li>
+                        </ul>
+                        <button class="btn btn-outline-primary w-full">Choisir ce forfait</button>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== CONFIGURATOR SECTION (Interactive) ========== -->
+        <section class="configurator section" id="configurator">
+            <div class="container">
+                <div class="section__header">
+                    <span class="section__subtitle">Personnalisez votre voyage</span>
+                    <h2 class="section__title">Configurateur de voyage</h2>
+                    <p class="section__description">
+                        Créez votre voyage sur mesure et obtenez un devis instantané
+                    </p>
+                </div>
+
+                <div class="configurator__container">
+                    <div class="configurator__form" data-aos="fade-right">
+                        <div class="form-group">
+                            <label for="destination-select" class="form-label">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                    <circle cx="12" cy="10" r="3"></circle>
+                                </svg>
+                                Destination
+                            </label>
+                            <select id="destination-select" class="form-select">
+                                <option value="norvege" data-price="1890">Norvège</option>
+                                <option value="japon" data-price="2190">Japon</option>
+                                <option value="maldives" data-price="3490">Maldives</option>
+                                <option value="kenya" data-price="2690">Kenya</option>
+                                <option value="islande" data-price="1690">Islande</option>
+                                <option value="perou" data-price="2390">Pérou</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="duration-select" class="form-label">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                                Durée
+                            </label>
+                            <select id="duration-select" class="form-select">
+                                <option value="3" data-multiplier="0.7">3-5 jours</option>
+                                <option value="7" data-multiplier="1" selected>7-10 jours</option>
+                                <option value="14" data-multiplier="1.6">14+ jours</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="travelers-input" class="form-label">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                                Nombre de voyageurs
+                            </label>
+                            <input type="number" id="travelers-input" class="form-input" value="2" min="1" max="10">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                                Options supplémentaires
+                            </label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="insurance" class="checkbox-input" data-price="89">
+                                    <span>Assurance annulation (+89€)</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="guide" class="checkbox-input" data-price="290">
+                                    <span>Guide privé (+290€)</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="excursions" class="checkbox-input" data-price="450">
+                                    <span>Pack excursions premium (+450€)</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="vip-transfer" class="checkbox-input" data-price="180">
+                                    <span>Transferts VIP (+180€)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary w-full" id="calculate-btn">
+                            Calculer le prix
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="1" x2="12" y2="23"></line>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="configurator__summary" data-aos="fade-left">
+                        <div class="summary-card">
+                            <h3 class="summary-card__title">Votre voyage personnalisé</h3>
+                            
+                            <div class="summary-item">
+                                <span class="summary-label">Destination</span>
+                                <span class="summary-value" id="summary-destination">Norvège</span>
+                            </div>
+                            
+                            <div class="summary-item">
+                                <span class="summary-label">Durée</span>
+                                <span class="summary-value" id="summary-duration">7-10 jours</span>
+                            </div>
+                            
+                            <div class="summary-item">
+                                <span class="summary-label">Voyageurs</span>
+                                <span class="summary-value" id="summary-travelers">2 personnes</span>
+                            </div>
+
+                            <div id="summary-options" class="summary-options">
+                                <!-- Options will be added dynamically -->
+                            </div>
+
+                            <div class="summary-divider"></div>
+
+                            <div class="summary-total">
+                                <span class="total-label">Prix total</span>
+                                <span class="total-value" id="total-price">3,780€</span>
+                            </div>
+
+                            <div class="summary-note">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                </svg>
+                                <p>Prix indicatif, ajustable selon vos préférences</p>
+                            </div>
+
+                            <button class="btn btn-primary w-full" id="request-quote-btn">
+                                Demander un devis détaillé
+                            </button>
+                        </div>
+
+                        <div class="trust-badges">
+                            <div class="trust-badge">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                </svg>
+                                <span>Paiement sécurisé</span>
+                            </div>
+                            <div class="trust-badge">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span>Annulation flexible</span>
+                            </div>
+                            <div class="trust-badge">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                                <span>Support 24/7</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== TESTIMONIALS SECTION ========== -->
+        <section class="testimonials section" id="testimonials">
+            <div class="container">
+                <div class="section__header">
+                    <span class="section__subtitle">Ce qu'ils en disent</span>
+                    <h2 class="section__title">Témoignages de voyageurs</h2>
+                    <p class="section__description">
+                        Des milliers de voyageurs nous font confiance pour leurs aventures
+                    </p>
+                </div>
+
+                <div class="testimonials__grid">
+                    <article class="testimonial-card" data-aos="fade-up">
+                        <div class="testimonial-card__rating">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                        </div>
+                        <p class="testimonial-card__text">
+                            "Une expérience inoubliable au Japon ! L'organisation était impeccable, 
+                            le guide local exceptionnel. Wanderlust a vraiment dépassé toutes mes attentes."
+                        </p>
+                        <div class="testimonial-card__author">
+                            <img src="https://i.pravatar.cc/150?img=1" alt="Sophie Martin" class="author-avatar">
+                            <div class="author-info">
+                                <h4 class="author-name">Sophie Martin</h4>
+                                <p class="author-location">Paris, France</p>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="testimonial-card" data-aos="fade-up" data-aos-delay="100">
+                        <div class="testimonial-card__rating">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                        </div>
+                        <p class="testimonial-card__text">
+                            "Le safari au Kenya était époustouflant ! Tout était parfaitement coordonné, 
+                            de l'hébergement aux excursions. Une équipe professionnelle et à l'écoute."
+                        </p>
+                        <div class="testimonial-card__author">
+                            <img src="https://i.pravatar.cc/150?img=12" alt="Marc Dubois" class="author-avatar">
+                            <div class="author-info">
+                                <h4 class="author-name">Marc Dubois</h4>
+                                <p class="author-location">Lyon, France</p>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="testimonial-card" data-aos="fade-up" data-aos-delay="200">
+                        <div class="testimonial-card__rating">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                        </div>
+                        <p class="testimonial-card__text">
+                            "Notre lune de miel aux Maldives était un rêve devenu réalité. 
+                            Le bungalow sur pilotis, les couchers de soleil... Merci Wanderlust !"
+                        </p>
+                        <div class="testimonial-card__author">
+                            <img src="https://i.pravatar.cc/150?img=5" alt="Julie & Thomas" class="author-avatar">
+                            <div class="author-info">
+                                <h4 class="author-name">Julie & Thomas</h4>
+                                <p class="author-location">Bordeaux, France</p>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== CONTACT SECTION ========== -->
+        <section class="contact section" id="contact">
+            <div class="container">
+                <div class="section__header">
+                    <span class="section__subtitle">Contactez-nous</span>
+                    <h2 class="section__title">Prêt à partir à l'aventure ?</h2>
+                    <p class="section__description">
+                        Notre équipe est là pour répondre à toutes vos questions et vous aider à planifier votre voyage
+                    </p>
+                </div>
+
+                <div class="contact__container">
+                    <div class="contact__info" data-aos="fade-right">
+                        <div class="info-card">
+                            <div class="info-card__icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                    <circle cx="12" cy="10" r="3"></circle>
+                                </svg>
+                            </div>
+                            <div class="info-card__content">
+                                <h3 class="info-card__title">Adresse</h3>
+                                <p class="info-card__text">42 Avenue des Champs-Élysées<br>75008 Paris, France</p>
+                            </div>
+                        </div>
+
+                        <div class="info-card">
+                            <div class="info-card__icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                                </svg>
+                            </div>
+                            <div class="info-card__content">
+                                <h3 class="info-card__title">Téléphone</h3>
+                                <p class="info-card__text">+33 1 23 45 67 89<br>Lun-Ven: 9h-19h</p>
+                            </div>
+                        </div>
+
+                        <div class="info-card">
+                            <div class="info-card__icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                    <polyline points="22,6 12,13 2,6"></polyline>
+                                </svg>
+                            </div>
+                            <div class="info-card__content">
+                                <h3 class="info-card__title">Email</h3>
+                                <p class="info-card__text">contact@wanderlust.travel<br>Réponse sous 24h</p>
+                            </div>
+                        </div>
+
+                        <div class="social-links">
+                            <a href="#" class="social-link" aria-label="Facebook">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                                </svg>
+                            </a>
+                            <a href="#" class="social-link" aria-label="Instagram">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                                </svg>
+                            </a>
+                            <a href="#" class="social-link" aria-label="Twitter">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                                </svg>
+                            </a>
+                            <a href="#" class="social-link" aria-label="LinkedIn">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                                    <rect x="2" y="9" width="4" height="12"></rect>
+                                    <circle cx="4" cy="4" r="2"></circle>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <form class="contact__form" id="contact-form" data-aos="fade-left">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="name" class="form-label">Nom complet *</label>
+                                <input type="text" id="name" name="name" class="form-input" required>
+                                <span class="form-error" id="name-error"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email" class="form-label">Email *</label>
+                                <input type="email" id="email" name="email" class="form-input" required>
+                                <span class="form-error" id="email-error"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="phone" class="form-label">Téléphone</label>
+                                <input type="tel" id="phone" name="phone" class="form-input">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="subject" class="form-label">Sujet *</label>
+                                <select id="subject" name="subject" class="form-select" required>
+                                    <option value="">Choisissez un sujet</option>
+                                    <option value="devis">Demande de devis</option>
+                                    <option value="info">Demande d'information</option>
+                                    <option value="reservation">Réservation</option>
+                                    <option value="autre">Autre</option>
+                                </select>
+                                <span class="form-error" id="subject-error"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message" class="form-label">Message *</label>
+                            <textarea id="message" name="message" class="form-textarea" rows="5" required></textarea>
+                            <span class="form-error" id="message-error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="consent" name="consent" class="checkbox-input" required>
+                                <span>J'accepte que mes données soient utilisées pour me recontacter *</span>
+                            </label>
+                            <span class="form-error" id="consent-error"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-full">
+                            Envoyer le message
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__container">
+                <div class="footer__column">
+                    <a href="#" class="footer__logo">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 2L3 9L16 16L29 9L16 2Z" fill="currentColor"/>
+                            <path d="M3 23L16 30L29 23V9L16 16L3 9V23Z" fill="currentColor" opacity="0.7"/>
+                        </svg>
+                        <span>Wanderlust</span>
+                    </a>
+                    <p class="footer__description">
+                        Votre partenaire de confiance pour des voyages inoubliables autour du monde. 
+                        Explorez, découvrez, vivez.
+                    </p>
+                    <div class="footer__newsletter">
+                        <h4 class="newsletter__title">Newsletter</h4>
+                        <form class="newsletter__form">
+                            <input type="email" placeholder="Votre email" class="newsletter__input">
+                            <button type="submit" class="newsletter__btn" aria-label="S'inscrire">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="footer__column">
+                    <h4 class="footer__title">Destinations</h4>
+                    <ul class="footer__links">
+                        <li><a href="#" class="footer__link">Europe</a></li>
+                        <li><a href="#" class="footer__link">Asie</a></li>
+                        <li><a href="#" class="footer__link">Afrique</a></li>
+                        <li><a href="#" class="footer__link">Amérique</a></li>
+                        <li><a href="#" class="footer__link">Océanie</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer__column">
+                    <h4 class="footer__title">Services</h4>
+                    <ul class="footer__links">
+                        <li><a href="#" class="footer__link">Voyages organisés</a></li>
+                        <li><a href="#" class="footer__link">Voyages sur mesure</a></li>
+                        <li><a href="#" class="footer__link">Vols & Hôtels</a></li>
+                        <li><a href="#" class="footer__link">Assurance voyage</a></li>
+                        <li><a href="#" class="footer__link">Guide & Conseils</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer__column">
+                    <h4 class="footer__title">Entreprise</h4>
+                    <ul class="footer__links">
+                        <li><a href="#" class="footer__link">À propos</a></li>
+                        <li><a href="#" class="footer__link">Notre équipe</a></li>
+                        <li><a href="#" class="footer__link">Carrières</a></li>
+                        <li><a href="#" class="footer__link">Partenaires</a></li>
+                        <li><a href="#" class="footer__link">Blog</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer__column">
+                    <h4 class="footer__title">Légal</h4>
+                    <ul class="footer__links">
+                        <li><a href="#" class="footer__link">CGV</a></li>
+                        <li><a href="#" class="footer__link">Confidentialité</a></li>
+                        <li><a href="#" class="footer__link">Cookies</a></li>
+                        <li><a href="#" class="footer__link">Mentions légales</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer__bottom">
+                <p class="footer__copyright">
+                    © 2025 Wanderlust Travel. Tous droits réservés.
+                </p>
+                <div class="footer__payment">
+                    <span>Paiements sécurisés</span>
+                    <div class="payment-icons">
+                        💳 🔒
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========== SCROLL TO TOP BUTTON ========== -->
+    <button class="scroll-top" id="scroll-top" aria-label="Retour en haut">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="19" x2="12" y2="5"></line>
+            <polyline points="5 12 12 5 19 12"></polyline>
+        </svg>
+    </button>
+
+    <!-- ========== TOAST NOTIFICATION ========== -->
+    <div class="toast" id="toast">
+        <div class="toast__icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        </div>
+        <div class="toast__content">
+            <p class="toast__message" id="toast-message">Message envoyé avec succès !</p>
+        </div>
+        <button class="toast__close" id="toast-close" aria-label="Fermer">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+    </div>
+
+    <!-- ========== MODAL ========== -->
+    <div class="modal" id="modal">
+        <div class="modal__overlay" id="modal-overlay"></div>
+        <div class="modal__content">
+            <button class="modal__close" id="modal-close" aria-label="Fermer">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <div class="modal__body" id="modal-body">
+                <!-- Content will be added dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
